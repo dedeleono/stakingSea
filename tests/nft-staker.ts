@@ -10,7 +10,7 @@ describe("nft-staker", () => {
 
   it("Is initialized!", async () => {
     // Add your test here.
-    const tx = await program.rpc.stakeNft({});
+    const tx = await program.rpc.initialize({});
     console.log("Your transaction signature", tx);
   });
 });
