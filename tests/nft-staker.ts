@@ -1,6 +1,7 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import { NftStaker } from "../target/types/nft_staker";
+import * as assert from "assert";
 
 describe("nft-staker", async () => {
   // Configure the client to use the local cluster.
@@ -19,6 +20,12 @@ describe("nft-staker", async () => {
     const jollyAccount = await program.account.jollyRanch.fetch(
       jollyranch.publicKey
     );
-    console.log("jollyAccount", jollyAccount);
+    // console.log("jollyAccount", jollyAccount);
+    assert.equal(
+      jollyAccount.authority.toBase58(),
+      program.provider.wallet.publicKey.toBase58()
+    );
+    assert.equal(jollyAccount.amount, new anchor.BN(0));
+    assert.equal(jollyAccount.amountRedeemed, new anchor.BN(0));
   });
 });
