@@ -6,6 +6,13 @@ declare_id!("CJcyzcyBMWqwFoMoLfRaa54kVa6EegK8EDRQKz2pobbG");
 pub mod nft_staker {
     use super::*;
     pub fn stake_nft(ctx: Context<StakeNFT>) -> ProgramResult {
+        let clock = Clock::get().unwrap();
+        let stake = &mut ctx.accounts.stake;
+        // preform extra stake data checks here
+
+        stake.authority = ctx.accounts.authority.key();
+        // stake.nft = ;
+        stake.start_date = clock.unix_timestamp;
         Ok(())
     }
 }
