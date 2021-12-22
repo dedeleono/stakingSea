@@ -1,17 +1,16 @@
-import * as anchor from '@project-serum/anchor';
-import { Program } from '@project-serum/anchor';
-import { NftStaker } from '../target/types/nft_staker';
+import * as anchor from "@project-serum/anchor";
+import { Program } from "@project-serum/anchor";
+import { NftStaker } from "../target/types/nft_staker";
 
-describe('nft-staker', () => {
-
+describe("nft-staker", () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.Provider.env());
 
   const program = anchor.workspace.NftStaker as Program<NftStaker>;
 
-  it('Is initialized!', async () => {
+  it("Is initialized!", async () => {
     // Add your test here.
-    const tx = await program.rpc.initialize({});
+    const tx = await program.rpc.stakeNft({});
     console.log("Your transaction signature", tx);
   });
 });

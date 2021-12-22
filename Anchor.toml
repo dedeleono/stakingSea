@@ -1,5 +1,5 @@
 [programs.localnet]
-nft_staker = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+nft_staker = "CJcyzcyBMWqwFoMoLfRaa54kVa6EegK8EDRQKz2pobbG"
 
 [registry]
 url = "https://anchor.projectserum.com"
