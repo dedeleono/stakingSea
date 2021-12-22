@@ -2,15 +2,23 @@ import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import { NftStaker } from "../target/types/nft_staker";
 
-describe("nft-staker", () => {
+describe("nft-staker", async () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.Provider.env());
-
   const program = anchor.workspace.NftStaker as Program<NftStaker>;
-
-  it("Is initialized!", async () => {
-    // Add your test here.
-    const tx = await program.rpc.initialize({});
-    console.log("Your transaction signature", tx);
+  const jollyranch = anchor.web3.Keypair.generate();
+  it("JollyRanch Created!", async () => {
+    await program.rpc.initialize({
+      accounts: {
+        jollyranch: jollyranch.publicKey,
+        authority: program.provider.wallet.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      },
+      signers: [jollyranch],
+    });
+    const jollyAccount = await program.account.jollyRanch.fetch(
+      jollyranch.publicKey
+    );
+    console.log("jollyAccount", jollyAccount);
   });
 });

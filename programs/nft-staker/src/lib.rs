@@ -10,6 +10,10 @@ pub mod nft_staker {
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>) -> ProgramResult {
+        let jollyranch = &mut ctx.accounts.jollyranch;
+        jollyranch.authority = ctx.accounts.authority.key();
+        jollyranch.amount = 0;
+        jollyranch.amount_redeemed = 0;
         Ok(())
     }
 
