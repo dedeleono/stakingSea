@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer}
 
 declare_id!("CJcyzcyBMWqwFoMoLfRaa54kVa6EegK8EDRQKz2pobbG");
 
@@ -20,6 +21,7 @@ pub mod nft_staker {
     pub fn fund_ranch(ctx: Context<FundRanch>, amount: u64) -> ProgramResult {
         let jollyranch = &mut ctx.accounts.jollyranch;
         // TODO: Take their spl_tokens and add them to the amount
+
         jollyranch.amount += amount;
         Ok(())
     }
@@ -62,6 +64,23 @@ pub struct FundRanch<'info> {
     #[account(has_one = authority)]
     pub jollyranch: Account<'info, JollyRanch>,
     pub authority: Signer<'info>,
+    // spl_token specific validations
+    pub spl_token: Account<'info, TokenAccount>,
+    pub mint: Account<'info, Mint>,
+    pub token_program: Program<'info, Token>
+}
+
+impl<'info> FundRanch<'info> {
+    pub fn transfer_ctx(&self) -> CpiContext<'_, '_, '_, 'info, Transfer<'info>> {
+        CpiContext::new(
+            self.token_program.to_account_info(),
+            Transfer {
+                from: self.spl_token.to_account_info(),
+                to: self.spl_token.to_account_info(),
+                authority: self.authority.to_account_info(),
+            }
+        )
+    }
 }
 
 #[derive(Accounts)]
