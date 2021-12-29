@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 
-declare_id!("CJcyzcyBMWqwFoMoLfRaa54kVa6EegK8EDRQKz2pobbG");
+declare_id!("5Wzhw9syRzXQSQkDs8pdCABC9gsWm2FpCjsV1wuqLnzZ");
 
 // Data Logics
 
@@ -10,19 +10,24 @@ pub mod nft_staker {
 
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> ProgramResult {
+    pub fn initialize(ctx: Context<Initialize>, token: Pubkey) -> ProgramResult {
+        msg!("initializer ran from anchor log");
         let jollyranch = &mut ctx.accounts.jollyranch;
         jollyranch.authority = ctx.accounts.authority.key();
         jollyranch.amount = 0;
         jollyranch.amount_redeemed = 0;
+        jollyranch.spl_token = token;
         Ok(())
     }
 
-    pub fn fund_ranch(ctx: Context<FundRanch>, amount: u64) -> ProgramResult {
+    pub fn fund_ranch(ctx: Context<FundRanch>, jollyranch_bump: u8, amount: u64) -> ProgramResult {
+        msg!("Funder starting tokens: {}", ctx.accounts.sender_spl_account.amount);
+        token::transfer(ctx.accounts.transfer_ctx(), amount)?;
+        ctx.accounts.sender_spl_account.reload()?;
+        msg!("Funder ending tokens: {}", ctx.accounts.sender_spl_account.amount);
         let jollyranch = &mut ctx.accounts.jollyranch;
-        // TODO: Take their spl_tokens and add them to the amount
-
         jollyranch.amount += amount;
+        jollyranch.jollyranch_bump = jollyranch_bump;
         Ok(())
     }
 
@@ -60,14 +65,20 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(jollyranch_bump: u8)]
 pub struct FundRanch<'info> {
     #[account(has_one = authority)]
     pub jollyranch: Account<'info, JollyRanch>,
     pub authority: Signer<'info>,
     // spl_token specific validations
-    pub spl_token: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub sender_spl_account: Account<'info, TokenAccount>,
+    #[account(init, payer = authority, seeds = [jollyranch.key().as_ref()], bump = jollyranch_bump, token::mint = mint, token::authority = reciever_spl_account )]
+    pub reciever_spl_account: Account<'info, TokenAccount>,
     pub mint: Account<'info, Mint>,
-    pub token_program: Program<'info, Token>
+    pub token_program: Program<'info, Token>,
+    pub system_program: Program<'info, System>,
+    pub rent: Sysvar<'info, Rent>
 }
 
 impl<'info> FundRanch<'info> {
@@ -75,8 +86,8 @@ impl<'info> FundRanch<'info> {
         CpiContext::new(
             self.token_program.to_account_info(),
             Transfer {
-                from: self.spl_token.to_account_info(),
-                to: self.spl_token.to_account_info(),
+                from: self.sender_spl_account.to_account_info(),
+                to: self.reciever_spl_account.to_account_info(),
                 authority: self.authority.to_account_info(),
             }
         )
@@ -116,6 +127,7 @@ const END_DATE_LENGTH: usize = 8;
 const AMOUNT_LENGTH: usize = 8;
 const AMOUNT_REDEEMED_LENGTH: usize = 8;
 const AMOUNT_OWED_LENGTH: usize = 8;
+const JOLLYRANCH_BUMP: usize = 8;
 
 #[account]
 pub struct JollyRanch {
@@ -123,6 +135,7 @@ pub struct JollyRanch {
     pub spl_token: Pubkey,
     pub amount: u64,
     pub amount_redeemed: u64,
+    pub jollyranch_bump: u8
 }
 
 impl JollyRanch {
@@ -130,7 +143,8 @@ impl JollyRanch {
         + AMOUNT_REDEEMED_LENGTH
         + DISCRIMINATOR_LENGTH
         + AUTHORITY_LENGTH
-        + SPL_TOKEN_LENGTH;
+        + SPL_TOKEN_LENGTH
+        + JOLLYRANCH_BUMP;
 }
 
 #[account]
