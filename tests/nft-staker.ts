@@ -14,19 +14,32 @@ describe("nft-staker", async () => {
   anchor.setProvider(anchor.Provider.env());
   // @ts-ignore
   const program = anchor.workspace.NftStaker as Program<NftStaker>;
-  const jollyranch = anchor.web3.Keypair.generate();
-  // use your own token here ex CHEESE
-  const spl_token = new PublicKey(
-    "9JtgcKbtYsxbrc715Dq6Z7zm5XS5vZr55Bav8vwDpARb"
+  // default behavior new jollyranch each test
+
+  // const jollyranch = anchor.web3.Keypair.generate();
+  // switch to pda account for same jollyranch testing
+
+  // pda generation example
+  let [jollyranch, jollyBump] = await anchor.web3.PublicKey.findProgramAddress(
+    [Buffer.from("jolly_account")],
+    program.programId
   );
 
-  const [recieverSplAccount, jollyranch_bump] =
+  console.log("jollyranch", jollyranch.toBase58());
+  console.log("jollyBump", jollyBump);
+
+  // use your own token here ex CHEESE
+  const spl_token = new PublicKey(
+    "BHK3mS5iqAu5E2yAyAofYf57GTSF3pbiKLJzwkmZAURy"
+  );
+
+  const [recieverSplAccount, splBump] =
     await anchor.web3.PublicKey.findProgramAddress(
-      [jollyranch.publicKey.toBuffer()],
+      [jollyranch.toBuffer()],
       program.programId
     );
   console.log("recieverSplAccount", recieverSplAccount.toBase58());
-  console.log("jollyranch_bump", jollyranch_bump);
+  console.log("splBump", splBump);
 
   let wallet_token_account = await Token.getAssociatedTokenAddress(
     ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -36,28 +49,32 @@ describe("nft-staker", async () => {
   );
   console.log("wallet_token_account", wallet_token_account.toBase58());
 
+  let jollyAccount;
+
   it("JollyRanch Created!", async () => {
-    await program.rpc.initialize(spl_token, {
-      accounts: {
-        jollyranch: jollyranch.publicKey,
-        authority: program.provider.wallet.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      },
-      signers: [jollyranch],
-    });
-    const jollyAccount = await program.account.jollyRanch.fetch(
-      jollyranch.publicKey
-    );
-    // console.log("jollyAccount", jollyAccount);
+    // only run this if it's the first time you're running the test
+    // await program.rpc.initialize(jollyBump, splBump, {
+    //   accounts: {
+    //     jollyranch: jollyranch,
+    //     authority: program.provider.wallet.publicKey,
+    //     recieverSplAccount: recieverSplAccount,
+    //     mint: spl_token,
+    //     systemProgram: anchor.web3.SystemProgram.programId,
+    //     tokenProgram: TOKEN_PROGRAM_ID,
+    //     rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+    //   },
+    // });
+    jollyAccount = await program.account.jollyRanch.fetch(jollyranch);
+    console.log("jollyAccount", jollyAccount);
     assert.equal(
       jollyAccount.authority.toBase58(),
       program.provider.wallet.publicKey.toBase58()
     );
-    assert.equal(jollyAccount.amount.toString(), new anchor.BN(0).toString());
-    assert.equal(
-      jollyAccount.amountRedeemed.toString(),
-      new anchor.BN(0).toString()
-    );
+    // assert.equal(jollyAccount.amount.toString(), new anchor.BN(0).toString());
+    // assert.equal(
+    //   jollyAccount.amountRedeemed.toString(),
+    //   new anchor.BN(0).toString()
+    // );
   });
   // fund the ranch
   it("JollyRanch Funded", async () => {
@@ -74,17 +91,15 @@ describe("nft-staker", async () => {
     //   )
     // );
 
-    let amount = new anchor.BN(10);
-    await program.rpc.fundRanch(jollyranch_bump, amount, {
+    let amount = new anchor.BN(1e9);
+    await program.rpc.fundRanch(amount, {
       accounts: {
-        jollyranch: jollyranch.publicKey,
+        jollyranch: jollyranch,
         authority: program.provider.wallet.publicKey,
         senderSplAccount: wallet_token_account,
         recieverSplAccount: recieverSplAccount,
-        mint: spl_token,
-        tokenProgram: program.provider.wallet.publicKey,
+        tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: anchor.web3.SystemProgram.programId,
-        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
       },
     });
     console.log(
