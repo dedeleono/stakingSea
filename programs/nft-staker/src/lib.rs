@@ -31,13 +31,18 @@ pub mod nft_staker {
         Ok(())
     }
 
-    pub fn stake_nft(ctx: Context<StakeNFT>, spl_bump: u8, lockup: u8, rarity: u8) -> ProgramResult {
+    pub fn stake_nft(
+        ctx: Context<StakeNFT>,
+        spl_bump: u8,
+        lockup: u8,
+        rarity: u8,
+    ) -> ProgramResult {
         if lockup > 3 {
             return Err(ErrorCode::InvalidLockupPeriod.into());
         }
         if rarity > 3 {
             return Err(ErrorCode::InvalidRarity.into());
-        }        
+        }
         let clock = Clock::get().unwrap();
         // Clock::get().unwrap();
         token::transfer(ctx.accounts.transfer_ctx(), 1)?;
@@ -46,10 +51,10 @@ pub mod nft_staker {
         stake.authority = ctx.accounts.authority.key();
         stake.start_date = clock.unix_timestamp;
         // lockup is 1/2/3 times days for lockup times seconds in a day aka lockup 1 = ten days
-        stake.end_date = clock.unix_timestamp + (lockup as i64) * 10 * 24*60*60;
+        stake.end_date = clock.unix_timestamp + (lockup as i64) * 10 * 24 * 60 * 60;
         stake.spl_bump = spl_bump;
         // msg!("NEW LOGS FOUND");
-        let percentage = ((lockup+rarity)as f64) / 100.0;
+        let percentage = ((lockup + rarity) as f64) / 100.0;
         // msg!("reward percentage: {}", percentage);
         let jollyranch = &mut ctx.accounts.jollyranch;
         // msg!("jollyranch amount: {}", jollyranch.amount);
@@ -63,30 +68,83 @@ pub mod nft_staker {
         Ok(())
     }
 
-    pub fn redeem_rewards(_ctx: Context<RedeemRewards>) -> ProgramResult {
-        // let amount_to_redeem = 0;
-        // let stake = &mut ctx.accounts.stake;
-        // // TODO: Calculate the amount to redeem based on the stake amount and the current time
-
-        // stake.amount_redeemed += amount_to_redeem;
-        // stake.amount_redeemed = 0;
-        let clock = Clock::get().unwrap();
-        msg!("clock.unix_timestamp: {}", clock.unix_timestamp);
-        let lockup = 10 * 24*60*60;
-        msg!("clock.unix_timestamp + 10 days: {}", clock.unix_timestamp + lockup);
+    pub fn redeem_rewards(ctx: Context<RedeemRewards>) -> ProgramResult {
+        let stake = &mut ctx.accounts.stake;
+        let mut clock_unix = Clock::get().unwrap().unix_timestamp;
+        if clock_unix > stake.end_date {
+            clock_unix = stake.end_date;
+        }
+        // msg!("end_date: {}, clock_unix: {},", stake.end_date, clock_unix);
+        let percentage: f64 =
+            ((clock_unix - stake.start_date) as f64) / ((stake.end_date - stake.start_date) as f64);
+        // msg!("Percentage earned: {}", percentage);
+        let amount_to_redeem =
+            ((stake.amount_owed as f64 * percentage) - stake.amount_redeemed as f64) as u64;
+        // msg!("Amount in token owed total {}", stake.amount_owed);
+        // msg!("Amount in token to redeem {}", amount_to_redeem);
+        stake.amount_redeemed += amount_to_redeem;
+        // new hotness is borken
+        // token::transfer(ctx.accounts.transfer_ctx(), amount_to_redeem)?;
+        // ol reliable?
+        anchor_spl::token::transfer(
+            CpiContext::new_with_signer(
+                ctx.accounts.token_program.to_account_info(),
+                anchor_spl::token::Transfer {
+                    from: ctx.accounts.sender_spl_account.to_account_info(),
+                    to: ctx.accounts.reciever_spl_account.to_account_info(),
+                    authority: ctx.accounts.sender_spl_account.to_account_info(),
+                },
+                &[&[
+                    ctx.accounts.jollyranch.key().as_ref(),
+                    &[ctx.accounts.jollyranch.spl_bump],
+                ]],
+            ),
+            amount_to_redeem,
+        )?;
         Ok(())
     }
 
     pub fn redeem_nft(ctx: Context<RedeemNFT>) -> ProgramResult {
-        let amount_to_redeem = 0;
+        let clock_unix = Clock::get().unwrap().unix_timestamp;
         let stake = &mut ctx.accounts.stake;
-        // TODO: Calculate the amount to redeem based on the stake amount and the current time
-        // if clock.unix_timestamp < val {
-        // if *ctx.accounts.payer.key != candy_machine.authority {
-        //     return Err(ErrorCode::CandyMachineNotLiveYet.into());
-        // }
-        stake.amount_redeemed += amount_to_redeem;
-        stake.amount_redeemed = 0;
+        if stake.withdrawn == true {
+            return Err(ErrorCode::InvalidNftWithdrawl.into());
+        }
+        if clock_unix < stake.end_date {
+            return Err(ErrorCode::InvalidNftTime.into());
+        }
+        stake.withdrawn = true;
+
+        // transfer back nft
+        anchor_spl::token::transfer(
+            CpiContext::new_with_signer(
+                ctx.accounts.token_program.to_account_info(),
+                anchor_spl::token::Transfer {
+                    from: ctx.accounts.sender_spl_account.to_account_info(),
+                    to: ctx.accounts.reciever_spl_account.to_account_info(),
+                    authority: ctx.accounts.sender_spl_account.to_account_info(),
+                },
+                &[&[
+                    ctx.accounts.stake.key().as_ref(),
+                    &[ctx.accounts.stake.spl_bump],
+                ]],
+            ),
+            1,
+        )?;
+        // Finally, close the escrow account and refund the maker (they paid for
+        // its rent-exemption).
+        anchor_spl::token::close_account(CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            anchor_spl::token::CloseAccount {
+                account: ctx.accounts.sender_spl_account.to_account_info(),
+                destination: ctx.accounts.reciever_spl_account.to_account_info(),
+                authority: ctx.accounts.sender_spl_account.to_account_info(),
+            },
+            &[&[
+                ctx.accounts.stake.key().as_ref(),
+                &[ctx.accounts.stake.spl_bump],
+            ]],
+        ))?;
         Ok(())
     }
 }
@@ -105,7 +163,7 @@ pub struct Initialize<'info> {
     pub mint: Account<'info, Mint>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
-    pub rent: Sysvar<'info, Rent>
+    pub rent: Sysvar<'info, Rent>,
 }
 
 #[derive(Accounts)]
@@ -130,7 +188,7 @@ impl<'info> FundRanch<'info> {
                 from: self.sender_spl_account.to_account_info(),
                 to: self.reciever_spl_account.to_account_info(),
                 authority: self.authority.to_account_info(),
-            }
+            },
         )
     }
 }
@@ -162,24 +220,40 @@ impl<'info> StakeNFT<'info> {
                 from: self.sender_spl_account.to_account_info(),
                 to: self.reciever_spl_account.to_account_info(),
                 authority: self.authority.to_account_info(),
-            }
+            },
         )
     }
 }
 
 #[derive(Accounts)]
-pub struct RedeemRewards {
-    // #[account(has_one = authority)]
-    // pub stake: Account<'info, Stake>,
-    // pub authority: Signer<'info>,
+pub struct RedeemRewards<'info> {
+    #[account(mut, has_one = authority)]
+    pub stake: Account<'info, Stake>,
+    #[account(mut)]
+    pub jollyranch: Account<'info, JollyRanch>,
+    pub authority: Signer<'info>,
+    // spl_token specific validations
+    #[account(mut, seeds = [jollyranch.key().as_ref()], bump = jollyranch.spl_bump)]
+    pub sender_spl_account: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub reciever_spl_account: Account<'info, TokenAccount>,
+    pub token_program: Program<'info, Token>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
 pub struct RedeemNFT<'info> {
-    #[account(has_one = authority)]
+    #[account(mut, has_one = authority)]
     pub stake: Account<'info, Stake>,
+    pub jollyranch: Account<'info, JollyRanch>,
     pub authority: Signer<'info>,
-    pub clock: Sysvar<'info, Clock>,
+    // spl_token specific validations
+    #[account(mut, seeds = [stake.key().as_ref()], bump = stake.spl_bump)]
+    pub sender_spl_account: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub reciever_spl_account: Account<'info, TokenAccount>,
+    pub token_program: Program<'info, Token>,
+    pub system_program: Program<'info, System>,
 }
 
 // Data Structures
@@ -191,7 +265,8 @@ const END_DATE_LENGTH: usize = 8;
 const AMOUNT_LENGTH: usize = 8;
 const AMOUNT_REDEEMED_LENGTH: usize = 8;
 const AMOUNT_OWED_LENGTH: usize = 8;
-const BUMP: usize = 8;
+const BUMP_LENGTH: usize = 8;
+const WITHDRAWN_LENGTH: usize = 8;
 
 #[account]
 pub struct JollyRanch {
@@ -199,7 +274,7 @@ pub struct JollyRanch {
     pub spl_bump: u8,
     pub amount: u64,
     pub amount_redeemed: u64,
-    pub bump: u8
+    pub bump: u8,
 }
 
 impl JollyRanch {
@@ -207,8 +282,8 @@ impl JollyRanch {
         + AMOUNT_REDEEMED_LENGTH
         + DISCRIMINATOR_LENGTH
         + AUTHORITY_LENGTH
-        + BUMP
-        + BUMP;
+        + BUMP_LENGTH
+        + BUMP_LENGTH;
 }
 
 #[account]
@@ -219,22 +294,26 @@ pub struct Stake {
     pub end_date: i64,
     pub amount_redeemed: u64,
     pub amount_owed: u64,
+    pub withdrawn: bool,
 }
 
 impl Stake {
     const LEN: usize = DISCRIMINATOR_LENGTH
         + AUTHORITY_LENGTH
-        + BUMP
+        + BUMP_LENGTH
         + START_DATE_LENGTH
         + END_DATE_LENGTH
         + AMOUNT_REDEEMED_LENGTH
-        + AMOUNT_OWED_LENGTH;
+        + AMOUNT_OWED_LENGTH
+        + WITHDRAWN_LENGTH;
 }
 // Error Codes
 #[error]
 pub enum ErrorCode {
-    #[msg("Invalid stake")]
-    InvalidStake,
+    #[msg("NFT can't be unlocked yet, not enough time has passed.")]
+    InvalidNftTime,
+    #[msg("NFT has already been un-staked")]
+    InvalidNftWithdrawl,
     #[msg("Lockup period invalid")]
     InvalidLockupPeriod,
     #[msg("Rarity invalid")]
