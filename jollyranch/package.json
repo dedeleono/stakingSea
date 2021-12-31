@@ -8,17 +8,19 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@solana/wallet-adapter-base": "^0.8.1",
-    "@solana/wallet-adapter-react": "^0.14.1",
-    "@solana/wallet-adapter-react-ui": "^0.7.0",
-    "@solana/wallet-adapter-wallets": "^0.13.0",
-    "@solana/web3.js": "^1.31.0",
+    "@metaplex/js": "^4.3.0",
+    "@project-serum/anchor": "^0.19.1-beta.1",
+    "@solana/spl-token": "^0.1.8",
+    "@solana/wallet-adapter-base": "^0.5.2",
+    "@solana/wallet-adapter-react": "^0.9.1",
+    "@solana/wallet-adapter-react-ui": "^0.1.0",
+    "@solana/wallet-adapter-wallets": "^0.7.5",
+    "@solana/web3.js": "^1.24.2",
     "daisyui": "^1.20.1",
     "next": "12.0.7",
     "next-transpile-modules": "^9.0.0",
     "react": "^17.0.2",
-    "react-dom": "17.0.2",
-    "stream": "^0.0.2"
+    "react-dom": "17.0.2"
   },
   "devDependencies": {
     "@types/node": "17.0.5",
