@@ -27,9 +27,9 @@ function MyApp({ Component, pageProps }: AppProps) {
             gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
         `}
       </Script> */}
-      {/* <WalletProviderSection> */}
-      <Component {...pageProps} />
-      {/* </WalletProviderSection> */}
+      <WalletProviderSection>
+        <Component {...pageProps} />
+      </WalletProviderSection>
     </>
   );
 }
