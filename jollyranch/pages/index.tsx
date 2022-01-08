@@ -267,10 +267,9 @@ const Home: NextPage = () => {
                             jollyState.program.programId
                           );
                         console.log("stake_spl", stake_spl.toString());
-                        const nft_public_key =
-                          connection.getTokenAccountsByOwner(stake_spl, {
-                            mint: jollyState.spl_token,
-                          });
+                        const nft_public_key = await connection.getAccountInfo(
+                          stake_spl
+                        );
                         console.log("nft_public_key", nft_public_key);
                         const nft = await getNftData(nft_public_key);
                         let cheese_index;
