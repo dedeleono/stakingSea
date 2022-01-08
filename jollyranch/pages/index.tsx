@@ -260,8 +260,17 @@ const Home: NextPage = () => {
                   {stakedNFTs.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-4">
                       {stakedNFTs.map(async (nft_account) => {
-                        console.log("nft_account", nft_account);
-                        const nft_public_key = nft_account.mint;
+                        // console.log("nft_account", nft_account);
+                        let [stake_spl, stakeBump] =
+                          await anchor.web3.PublicKey.findProgramAddress(
+                            [nft_account.publicKey.toBuffer()],
+                            jollyState.program.programId
+                          );
+                        console.log("stake_spl", stake_spl.toString());
+                        const nft_public_key =
+                          connection.getTokenAccountsByOwner(stake_spl, {
+                            mint: jollyState.spl_token,
+                          });
                         const nft = await getNftData(nft_public_key);
                         let cheese_index;
                         nft.attributes.map((cheese: any, index: number) => {
