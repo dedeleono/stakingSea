@@ -267,10 +267,24 @@ const Home: NextPage = () => {
                             jollyState.program.programId
                           );
                         console.log("stake_spl", stake_spl.toString());
-                        const nft_public_key = await connection.getAccountInfo(
-                          stake_spl
-                        );
-                        console.log("nft_public_key", nft_public_key);
+                        const nft_public_key = await axios
+                          .post("https://api.mainnet-beta.solana.com", {
+                            jsonrpc: "2.0",
+                            id: 1,
+                            method: "getAccountInfo",
+                            params: [
+                              "ALUNJwkxSiduENK9rV7koFZTV7HFsacMAcno1TZVAgfZ",
+                              {
+                                encoding: "jsonParsed",
+                              },
+                            ],
+                          })
+                          .then(async (res) => {
+                            console.log("res", res);
+                            return res["value"].data.parsed.mint;
+                          });
+
+                        console.log("nft_public_key", nft_public_key.data);
                         const nft = await getNftData(nft_public_key);
                         let cheese_index;
                         nft.attributes.map((cheese: any, index: number) => {
