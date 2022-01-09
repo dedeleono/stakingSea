@@ -533,7 +533,9 @@ const Home: NextPage = () => {
                               className="btn btn-primary mt-4"
                               onClick={async () => {
                                 await stakeNFT(nft.mint, cheese, lockup);
-                                window.location.reload();
+                                setTimeout(() => {
+                                  Router.reload();
+                                }, 3333);
                               }}
                             >
                               Stake
