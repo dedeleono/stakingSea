@@ -75,8 +75,8 @@ const Home: NextPage = () => {
         recieverSplAccount: stake_spl.toString(),
         mint: nft.toString(),
         systemProgram: anchor.web3.SystemProgram.programId.toString(),
-        tokenProgram: TOKEN_PROGRAM_ID,
-        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        tokenProgram: TOKEN_PROGRAM_ID.toString(),
+        rent: anchor.web3.SYSVAR_RENT_PUBKEY.toString(),
       },
       signers: [stake],
     });
