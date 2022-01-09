@@ -1,7 +1,6 @@
 import * as anchor from "@project-serum/anchor";
 import { Program, Provider, BN } from "@project-serum/anchor";
-import { IDL, NftStaker } from "../lib/types/nft_staker";
-import { Commitment, ConfirmOptions, PublicKey } from "@solana/web3.js";
+import { ConfirmOptions } from "@solana/web3.js";
 import * as bs58 from "bs58";
 import {
   Token,
@@ -21,6 +20,8 @@ import idl_type from "../lib/nft_staker.json";
 
 import axios from "axios";
 
+import Router from "next/router";
+
 import { programs } from "@metaplex/js";
 const {
   metadata: { Metadata },
@@ -28,6 +29,7 @@ const {
 
 type jollyProgramState = {
   program: any;
+  connection: any;
   jollyranch: any;
   jollyBump: any;
   recieverSplAccount: any;
@@ -49,7 +51,7 @@ const Home: NextPage = () => {
   const idl = idl_type as anchor.Idl;
 
   const stakeNFT = async (publicKey, cheese, lockup) => {
-    const nft = new PublicKey(publicKey);
+    const nft = new anchor.web3.PublicKey(publicKey);
     // console.log("nft", nft.toString());
     // console.log("cheese", cheese);
     // console.log("lockup", lockup);
@@ -66,19 +68,19 @@ const Home: NextPage = () => {
     );
     await jollyState.program.rpc.stakeNft(stakeBump, lockup, cheese, {
       accounts: {
-        authority: wallet.publicKey,
-        stake: stake.publicKey,
-        jollyranch: jollyState.jollyranch,
-        senderSplAccount: wallet_nft_account,
-        recieverSplAccount: stake_spl,
-        mint: nft,
-        systemProgram: anchor.web3.SystemProgram.programId,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        authority: wallet.publicKey.toString(),
+        stake: stake.publicKey.toString(),
+        jollyranch: jollyState.jollyranch.toString(),
+        senderSplAccount: wallet_nft_account.toString(),
+        recieverSplAccount: stake_spl.toString(),
+        mint: nft.toString(),
+        systemProgram: anchor.web3.SystemProgram.programId.toString(),
+        tokenProgram: TOKEN_PROGRAM_ID.toString(),
+        rent: anchor.web3.SYSVAR_RENT_PUBKEY.toString(),
       },
       signers: [stake],
     });
-    window.location.reload();
+
     // console.log(
     //   "sender nft ending balance: ",
     //   await jollyState.program.provider.connection.getTokenAccountBalance(
@@ -110,24 +112,25 @@ const Home: NextPage = () => {
     // });
   };
 
-  const opts = {
-    preflightCommitment: "recent" as ConfirmOptions,
-  };
-
-  const network = "https://solana-api.projectserum.com";
-  const connection = new anchor.web3.Connection(
-    network,
-    opts.preflightCommitment
-  );
-
-  const provider = new Provider(connection, wallet, opts.preflightCommitment);
-
   const setupJollyRanch = async () => {
-    const ratbastards = new PublicKey(
+    const opts = {
+      preflightCommitment: "recent" as ConfirmOptions,
+    };
+
+    const network = "https://solana-api.projectserum.com";
+    const connection = new anchor.web3.Connection(
+      network,
+      opts.preflightCommitment
+    );
+
+    const provider = new Provider(connection, wallet, opts.preflightCommitment);
+    const ratbastards = new anchor.web3.PublicKey(
       "2sKvVnq3rwQRay5WNDHhsMNEpNQAJ4G9o8JTN5WjUpxo"
     );
-    // @ts-ignore
-    const program: Program<NftStaker> = new Program(idl, ratbastards, provider);
+    // console.log("ratbastards", ratbastards);
+    // console.log("ratbastards", ratbastards.toString());
+    const program = new Program(idl, ratbastards.toString(), provider);
+    // console.log("program got ran", program);
     // default behavior new jollyranch each test
 
     // const jollyranch = anchor.web3.Keypair.generate();
@@ -148,7 +151,7 @@ const Home: NextPage = () => {
     // console.log("jollyBump", jollyBump);
 
     // use your own token here ex CHEESE
-    const spl_token = new PublicKey(
+    const spl_token = new anchor.web3.PublicKey(
       "3oePHsi4fhoyuLAjqXEgBUPB1cs4bP9A8cZpc1dATS9c"
     );
 
@@ -171,22 +174,25 @@ const Home: NextPage = () => {
     );
     // console.log("wallet_token_account", wallet_token_account.toBase58());
 
-    const jollyAccount = await program.account.jollyRanch.fetch(jollyranch);
+    const jollyAccount = await program.account.jollyRanch.fetch(
+      jollyranch.toString()
+    );
     // console.log("jollyAccount", jollyAccount);
     // console.log("jollyAccount.amount", jollyAccount.amount.toString());
     // console.log(
     //   "jollyAccount.amountRedeemed",
     //   jollyAccount.amountRedeemed.toString()
     // );
-    console.log("program", program);
-    console.log("jollyAccount", jollyAccount);
-    console.log("jollyAccount amount", jollyAccount.amount.toNumber());
-    console.log(
-      "jollyAccount amount redeemed",
-      jollyAccount.amountRedeemed.toNumber()
-    );
+    // console.log("program", program);
+    // console.log("jollyAccount", jollyAccount);
+    // console.log("jollyAccount amount", jollyAccount.amount.toNumber());
+    // console.log(
+    //   "jollyAccount amount redeemed",
+    //   jollyAccount.amountRedeemed.toNumber()
+    // );
     setJollyState({
       program,
+      connection,
       jollyranch,
       jollyBump,
       recieverSplAccount,
@@ -198,7 +204,7 @@ const Home: NextPage = () => {
   };
 
   const getNftData = async (nft_public_key) => {
-    const tokenAccount = new PublicKey(nft_public_key);
+    const tokenAccount = new anchor.web3.PublicKey(nft_public_key);
     const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
       "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
     );
@@ -210,7 +216,9 @@ const Home: NextPage = () => {
       ],
       TOKEN_METADATA_PROGRAM_ID
     );
-    const accountInfo: any = await connection.getParsedAccountInfo(pda);
+    const accountInfo: any = await jollyState.connection.getParsedAccountInfo(
+      pda
+    );
 
     const metadata: any = new Metadata(
       wallet.publicKey.toString(),
@@ -247,6 +255,7 @@ const Home: NextPage = () => {
             [nft_account.publicKey.toBuffer()],
             jollyState.program.programId
           );
+        // console.log("stake_spl", stake_spl);
         // console.log("stake_spl", stake_spl.toString());
         const nft_public_key = await axios
           .post("https://api.mainnet-beta.solana.com", {
@@ -471,7 +480,7 @@ const Home: NextPage = () => {
                       }
                       return (
                         <div
-                          key={nft.id}
+                          key={nft.id || Math.random()}
                           className="card w-72 m-4 card-bordered card-compact lg:card-normal shadow-xl bg-primary-content text"
                         >
                           <figure>
@@ -487,7 +496,7 @@ const Home: NextPage = () => {
                             <div className="btn-group grid grid-cols-3 content-center">
                               <input
                                 type="radio"
-                                name="options"
+                                name={`options ${nft.id}`}
                                 id="option1"
                                 data-title="10"
                                 defaultChecked
@@ -499,7 +508,7 @@ const Home: NextPage = () => {
                               />
                               <input
                                 type="radio"
-                                name="options"
+                                name={`options ${nft.id}`}
                                 id="option2"
                                 data-title="20"
                                 onChange={(e) => {
@@ -510,7 +519,7 @@ const Home: NextPage = () => {
                               />
                               <input
                                 type="radio"
-                                name="options"
+                                name={`options ${nft.id}`}
                                 id="option3"
                                 data-title="30"
                                 onChange={(e) => {
