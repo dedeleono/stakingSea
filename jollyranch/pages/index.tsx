@@ -80,8 +80,6 @@ const Home: NextPage = () => {
       },
       signers: [stake],
     });
-    location.reload();
-    Router.reload();
 
     // console.log(
     //   "sender nft ending balance: ",
@@ -533,8 +531,9 @@ const Home: NextPage = () => {
                             </div>
                             <button
                               className="btn btn-primary mt-4"
-                              onClick={() => {
-                                stakeNFT(nft.mint, cheese, lockup);
+                              onClick={async () => {
+                                await stakeNFT(nft.mint, cheese, lockup);
+                                window.location.reload();
                               }}
                             >
                               Stake
