@@ -281,11 +281,14 @@ const Home: NextPage = () => {
                           })
                           .then(async (res) => {
                             console.log("res", res);
-                            return res["value"].data.parsed.mint;
+                            console.log("res-mint", res.data.result.value.data.parsed.info.mint);
+
+                            return res.data.result.value.data.parsed.info.mint;
                           });
 
-                        console.log("nft_public_key", nft_public_key.data);
+                        console.log("nft_public_key", nft_public_key);
                         const nft = await getNftData(nft_public_key);
+                        console.log("nft", nft)
                         let cheese_index;
                         nft.attributes.map((cheese: any, index: number) => {
                           if (cheese.trait_type === "Cheeserank") {
