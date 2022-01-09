@@ -69,12 +69,12 @@ const Home: NextPage = () => {
     await jollyState.program.rpc.stakeNft(stakeBump, lockup, cheese, {
       accounts: {
         authority: wallet.publicKey.toString(),
-        stake: stake.publicKey,
+        stake: stake.publicKey.toString(),
         jollyranch: jollyState.jollyranch,
-        senderSplAccount: wallet_nft_account,
-        recieverSplAccount: stake_spl,
-        mint: nft,
-        systemProgram: anchor.web3.SystemProgram.programId,
+        senderSplAccount: wallet_nft_account.toString(),
+        recieverSplAccount: stake_spl.toString(),
+        mint: nft.toString(),
+        systemProgram: anchor.web3.SystemProgram.programId.toString(),
         tokenProgram: TOKEN_PROGRAM_ID,
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
       },
