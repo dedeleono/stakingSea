@@ -70,7 +70,7 @@ const Home: NextPage = () => {
       accounts: {
         authority: wallet.publicKey.toString(),
         stake: stake.publicKey.toString(),
-        jollyranch: jollyState.jollyranch,
+        jollyranch: jollyState.jollyranch.toString(),
         senderSplAccount: wallet_nft_account.toString(),
         recieverSplAccount: stake_spl.toString(),
         mint: nft.toString(),
