@@ -1,7 +1,6 @@
 import * as anchor from "@project-serum/anchor";
 import { Program, Provider, BN } from "@project-serum/anchor";
 import { IDL, NftStaker } from "../lib/types/nft_staker";
-import * as assert from "assert";
 import { Commitment, ConfirmOptions, PublicKey } from "@solana/web3.js";
 import * as bs58 from "bs58";
 import {
@@ -124,12 +123,11 @@ const Home: NextPage = () => {
   const provider = new Provider(connection, wallet, opts.preflightCommitment);
 
   const setupJollyRanch = async () => {
-    // @ts-ignore
-    const program: Program<NftStaker> = new Program(
-      idl,
-      "2sKvVnq3rwQRay5WNDHhsMNEpNQAJ4G9o8JTN5WjUpxo",
-      provider
+    const ratbastards = new PublicKey(
+      "2sKvVnq3rwQRay5WNDHhsMNEpNQAJ4G9o8JTN5WjUpxo"
     );
+    // @ts-ignore
+    const program: Program<NftStaker> = new Program(idl, ratbastards, provider);
     // default behavior new jollyranch each test
 
     // const jollyranch = anchor.web3.Keypair.generate();
