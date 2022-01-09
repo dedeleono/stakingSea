@@ -298,10 +298,10 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Rat Bastards JollyRanch</title>
+        <title>Cheese Factory</title>
         <meta
           name="description"
-          content="An nft staking platform for rat bastards"
+          content="An nft staking platform for Rat Bastards"
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
