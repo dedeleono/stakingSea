@@ -178,7 +178,13 @@ const Home: NextPage = () => {
     //   "jollyAccount.amountRedeemed",
     //   jollyAccount.amountRedeemed.toString()
     // );
-
+    console.log("program", program);
+    console.log("jollyAccount", jollyAccount);
+    console.log("jollyAccount amount", jollyAccount.amount.toNumber());
+    console.log(
+      "jollyAccount amount redeemed",
+      jollyAccount.amountRedeemed.toNumber()
+    );
     setJollyState({
       program,
       jollyranch,
@@ -189,6 +195,29 @@ const Home: NextPage = () => {
       wallet_token_account,
       jollyAccount,
     });
+  };
+
+  const getNftData = async (nft_public_key) => {
+    const tokenAccount = new PublicKey(nft_public_key);
+    const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
+      "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+    );
+    let [pda] = await anchor.web3.PublicKey.findProgramAddress(
+      [
+        Buffer.from("metadata"),
+        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+        new anchor.web3.PublicKey(tokenAccount.toString()).toBuffer(),
+      ],
+      TOKEN_METADATA_PROGRAM_ID
+    );
+    const accountInfo: any = await connection.getParsedAccountInfo(pda);
+
+    const metadata: any = new Metadata(
+      wallet.publicKey.toString(),
+      accountInfo.value
+    );
+    const { data }: any = await axios.get(metadata.data.data.uri);
+    return data;
   };
 
   const getStakedNfts = async () => {
@@ -261,7 +290,7 @@ const Home: NextPage = () => {
   }, [wallet]);
 
   useEffect(() => {
-    if (jollyState.program) {
+    if (jollyState["program"]) {
       getStakedNfts();
     }
   }, [jollyState]);
@@ -271,29 +300,6 @@ const Home: NextPage = () => {
       getStakedMints();
     }
   }, [stakedNFTs]);
-
-  const getNftData = async (nft_public_key) => {
-    const tokenAccount = new PublicKey(nft_public_key);
-    const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
-      "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-    );
-    let [pda] = await anchor.web3.PublicKey.findProgramAddress(
-      [
-        Buffer.from("metadata"),
-        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-        new anchor.web3.PublicKey(tokenAccount.toString()).toBuffer(),
-      ],
-      TOKEN_METADATA_PROGRAM_ID
-    );
-    const accountInfo: any = await connection.getParsedAccountInfo(pda);
-
-    const metadata: any = new Metadata(
-      wallet.publicKey.toString(),
-      accountInfo.value
-    );
-    const { data }: any = await axios.get(metadata.data.data.uri);
-    return data;
-  };
 
   return (
     <>
@@ -320,7 +326,7 @@ const Home: NextPage = () => {
                   )}
                   {!wallet.connected && <p>please connect your wallet below</p>}
                   {stakedMints.length > 0 && !loadingStakes && (
-                    <div className="grid grid-cols-1 md:grid-cols-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3">
                       {stakedMints.map((nft) => {
                         // console.log("nft", nft);
                         // console.log(
@@ -348,9 +354,9 @@ const Home: NextPage = () => {
                               percentage -
                             nft.nft_account.account.amountRedeemed.toNumber();
                           stakingRewards[nft.nft_account.publicKey.toString()] =
-                            estimateRewards.toFixed(3);
+                            estimateRewards.toFixed(6);
                           setStakingRewards({ ...stakingRewards });
-                        }, 5000);
+                        }, 3000);
 
                         let cheese_index;
                         nft.attributes.map((cheese: any, index: number) => {
@@ -377,7 +383,7 @@ const Home: NextPage = () => {
                               nft.nft_account.publicKey.toString() ||
                               Math.random()
                             }
-                            className="card w-72 card-bordered card-compact lg:card-normal shadow-xl bg-primary-content text"
+                            className="card w-72 m-4 card-bordered card-compact lg:card-normal shadow-xl bg-primary-content text"
                           >
                             <figure>
                               <img
@@ -391,9 +397,15 @@ const Home: NextPage = () => {
                               <div className="">
                                 <p>Estimate Rewards:</p>
                                 <p className="badge badge-outline bg-primary">
-                                  {(stakingRewards[
+                                  {stakingRewards[
                                     nft.nft_account.publicKey.toString()
-                                  ]/1000).toFixed(3) || "loading..."}{" "}
+                                  ] > 0
+                                    ? (
+                                        stakingRewards[
+                                          nft.nft_account.publicKey.toString()
+                                        ] / 1000
+                                      ).toFixed(6)
+                                    : "Loading"}{" "}
                                   $CHEEZE
                                 </p>
                               </div>
@@ -434,7 +446,7 @@ const Home: NextPage = () => {
                       </h1>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3">
                     {nfts.map((nft) => {
                       // console.log("nft", nft);
                       let lockup = 1;
@@ -460,7 +472,7 @@ const Home: NextPage = () => {
                       return (
                         <div
                           key={nft.id}
-                          className="card w-72 card-bordered card-compact lg:card-normal shadow-xl bg-primary-content text"
+                          className="card w-72 m-4 card-bordered card-compact lg:card-normal shadow-xl bg-primary-content text"
                         >
                           <figure>
                             <img

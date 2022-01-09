@@ -1,12 +1,18 @@
 [programs.localnet]
-nft_staker = "5Wzhw9syRzXQSQkDs8pdCABC9gsWm2FpCjsV1wuqLnzZ"
+nft_staker = "2sKvVnq3rwQRay5WNDHhsMNEpNQAJ4G9o8JTN5WjUpxo"
+
+[programs.devnet]
+nft_staker = "2sKvVnq3rwQRay5WNDHhsMNEpNQAJ4G9o8JTN5WjUpxo"
+
+[programs.mainnet]
+nft_staker = "2sKvVnq3rwQRay5WNDHhsMNEpNQAJ4G9o8JTN5WjUpxo"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "localnet"
-wallet = "~/.config/solana/id.json"
+cluster = "mainnet"
+wallet = "~/projects/nft-staker/lib/ratbastards.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

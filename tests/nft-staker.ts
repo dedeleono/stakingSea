@@ -20,6 +20,8 @@ describe("nft-staker", async () => {
   // const jollyranch = anchor.web3.Keypair.generate();
   // switch to pda account for same jollyranch testing
 
+  console.log("program", program.programId.toString());
+
   // pda generation example
   let [jollyranch, jollyBump] = await anchor.web3.PublicKey.findProgramAddress(
     [Buffer.from("jolly_account")],
@@ -31,7 +33,7 @@ describe("nft-staker", async () => {
 
   // use your own token here ex CHEESE
   const spl_token = new PublicKey(
-    "BHK3mS5iqAu5E2yAyAofYf57GTSF3pbiKLJzwkmZAURy"
+    "3oePHsi4fhoyuLAjqXEgBUPB1cs4bP9A8cZpc1dATS9c"
   );
 
   const [recieverSplAccount, splBump] =
@@ -41,6 +43,11 @@ describe("nft-staker", async () => {
     );
   console.log("recieverSplAccount", recieverSplAccount.toBase58());
   console.log("splBump", splBump);
+
+  console.log(
+    "wallet pulbic key",
+    program.provider.wallet.publicKey.toString()
+  );
 
   let wallet_token_account = await Token.getAssociatedTokenAddress(
     ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -66,7 +73,7 @@ describe("nft-staker", async () => {
     //   },
     // });
     jollyAccount = await program.account.jollyRanch.fetch(jollyranch);
-    // console.log("jollyAccount", jollyAccount);
+    console.log("jollyAccount", jollyAccount);
     console.log("jollyAccount.amount", jollyAccount.amount.toString());
     console.log(
       "jollyAccount.amountRedeemed",
@@ -82,6 +89,7 @@ describe("nft-staker", async () => {
     //   new anchor.BN(0).toString()
     // );
   });
+
   // fund the ranch
   // it("JollyRanch Funded", async () => {
   //   console.log(
@@ -97,7 +105,8 @@ describe("nft-staker", async () => {
   //   //   )
   //   // );
 
-  //   let amount = new anchor.BN(1e9);
+  //   let amount = new anchor.BN(2000 * 1e3);
+  //   // console.log("amount", amount.toString());
   //   await program.rpc.fundRanch(amount, {
   //     accounts: {
   //       jollyranch: jollyranch,
@@ -129,72 +138,72 @@ describe("nft-staker", async () => {
   // });
 
   // stake NFT
-  // it("NFT Staked", async () => {
-  // use your own NFT here ex Rat Batasard
-  // const nft = new PublicKey("3YiwVDDRM5jHB4o4dGr27mXDC6JzCFdbRFsL4m8kmhYz");
-  // const lockup = 1;
-  // const rarity = 3;
-  // const stake = anchor.web3.Keypair.generate();
-  // let [stake_spl, stakeBump] = await anchor.web3.PublicKey.findProgramAddress(
-  //   [stake.publicKey.toBuffer()],
-  //   program.programId
-  // );
-  // let wallet_nft_account = await Token.getAssociatedTokenAddress(
-  //   ASSOCIATED_TOKEN_PROGRAM_ID,
-  //   TOKEN_PROGRAM_ID,
-  //   nft,
-  //   program.provider.wallet.publicKey
-  // );
-  // await program.rpc.stakeNft(stakeBump, lockup, rarity, {
-  //   accounts: {
-  //     authority: program.provider.wallet.publicKey,
-  //     stake: stake.publicKey,
-  //     jollyranch: jollyranch,
-  //     senderSplAccount: wallet_nft_account,
-  //     recieverSplAccount: stake_spl,
-  //     mint: nft,
-  //     systemProgram: anchor.web3.SystemProgram.programId,
-  //     tokenProgram: TOKEN_PROGRAM_ID,
-  //     rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-  //   },
-  //   signers: [stake],
-  // });
-  // console.log(
-  //   "sender nft ending balance: ",
-  //   await program.provider.connection.getTokenAccountBalance(
-  //     wallet_nft_account
-  //   )
-  // );
-  // second time just return all my stakes
-  // const stakedNfts = await program.account.stake.all([
-  //   {
-  //     memcmp: {
-  //       offset: 8, // Discriminator
-  //       bytes: bs58.encode(program.provider.wallet.publicKey.toBuffer()),
-  //     },
-  //   },
-  // ]);
-  // console.log("stakedNfts", stakedNfts);
-  // stakedNfts.map((stake, index) => {
-  //   console.log("stake:", index);
-  //   console.log(
-  //     "stake.account.startDate",
-  //     new Date(stake.account.startDate.toNumber() * 1000)
-  //   );
-  //   console.log(
-  //     "stake.account.endDate",
-  //     new Date(stake.account.endDate.toNumber() * 1000)
-  //   );
-  //   console.log(
-  //     "stake.account.amountRedeemed",
-  //     stake.account.amountRedeemed.toString()
-  //   );
-  //   console.log(
-  //     "stake.account.amountOwed",
-  //     stake.account.amountOwed.toString()
-  //   );
-  // });
-  // });
+  it("NFT Staked", async () => {
+    // use your own NFT here ex Rat Batasard
+    const nft = new PublicKey("3YiwVDDRM5jHB4o4dGr27mXDC6JzCFdbRFsL4m8kmhYz");
+    const lockup = 1;
+    const rarity = 3;
+    const stake = anchor.web3.Keypair.generate();
+    let [stake_spl, stakeBump] = await anchor.web3.PublicKey.findProgramAddress(
+      [stake.publicKey.toBuffer()],
+      program.programId
+    );
+    let wallet_nft_account = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      nft,
+      program.provider.wallet.publicKey
+    );
+    await program.rpc.stakeNft(stakeBump, lockup, rarity, {
+      accounts: {
+        authority: program.provider.wallet.publicKey,
+        stake: stake.publicKey,
+        jollyranch: jollyranch,
+        senderSplAccount: wallet_nft_account,
+        recieverSplAccount: stake_spl,
+        mint: nft,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+      },
+      signers: [stake],
+    });
+    console.log(
+      "sender nft ending balance: ",
+      await program.provider.connection.getTokenAccountBalance(
+        wallet_nft_account
+      )
+    );
+    // second time just return all my stakes
+    const stakedNfts = await program.account.stake.all([
+      {
+        memcmp: {
+          offset: 8, // Discriminator
+          bytes: bs58.encode(program.provider.wallet.publicKey.toBuffer()),
+        },
+      },
+    ]);
+    console.log("stakedNfts", stakedNfts);
+    stakedNfts.map((stake, index) => {
+      console.log("stake:", index);
+      console.log(
+        "stake.account.startDate",
+        new Date(stake.account.startDate.toNumber() * 1000)
+      );
+      console.log(
+        "stake.account.endDate",
+        new Date(stake.account.endDate.toNumber() * 1000)
+      );
+      console.log(
+        "stake.account.amountRedeemed",
+        stake.account.amountRedeemed.toString()
+      );
+      console.log(
+        "stake.account.amountOwed",
+        stake.account.amountOwed.toString()
+      );
+    });
+  });
 
   // it("Redeem rewards", async () => {
   //   console.log(
