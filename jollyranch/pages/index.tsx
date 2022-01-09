@@ -394,7 +394,7 @@ const Home: NextPage = () => {
                                   {(stakingRewards[
                                     nft.nft_account.publicKey.toString()
                                   ]/1000).toFixed(3) || "loading..."}{" "}
-                                  Cheeze
+                                  $CHEEZE
                                 </p>
                               </div>
                             </div>
