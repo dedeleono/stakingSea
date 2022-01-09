@@ -43,6 +43,9 @@ const Home: NextPage = () => {
   const [isLoading, nfts]: any = useWalletNfts();
   const [jollyState, setJollyState] = useState({} as jollyProgramState);
   const [stakedNFTs, setStakedNFTs] = useState([]);
+  const [stakedMints, setStakedMints] = useState([]);
+  const [loadingStakes, setLoadingStakes] = useState(true);
+  const [stakingRewards, setStakingRewards] = useState({});
 
   const idl = idl_type as anchor.Idl;
 
@@ -76,35 +79,36 @@ const Home: NextPage = () => {
       },
       signers: [stake],
     });
-    console.log(
-      "sender nft ending balance: ",
-      await jollyState.program.provider.connection.getTokenAccountBalance(
-        wallet_nft_account
-      )
-    );
-    // second time just return all my stakes
-    const stakedNfts = await getStakedNfts();
-    console.log("stakedNfts after staking one:", stakedNfts);
-    setStakedNFTs(stakedNfts);
-    stakedNfts.map((stake, index) => {
-      console.log("stake:", index);
-      console.log(
-        "stake.account.startDate",
-        new Date(stake.account.startDate.toNumber() * 1000)
-      );
-      console.log(
-        "stake.account.endDate",
-        new Date(stake.account.endDate.toNumber() * 1000)
-      );
-      console.log(
-        "stake.account.amountRedeemed",
-        stake.account.amountRedeemed.toString()
-      );
-      console.log(
-        "stake.account.amountOwed",
-        stake.account.amountOwed.toString()
-      );
-    });
+    window.location.reload();
+    // console.log(
+    //   "sender nft ending balance: ",
+    //   await jollyState.program.provider.connection.getTokenAccountBalance(
+    //     wallet_nft_account
+    //   )
+    // );
+    // // second time just return all my stakes
+    // const stakedNfts = await getStakedNfts();
+    // console.log("stakedNfts after staking one:", stakedNfts);
+    // setStakedNFTs(stakedNfts);
+    // stakedNfts.map((stake, index) => {
+    //   console.log("stake:", index);
+    //   console.log(
+    //     "stake.account.startDate",
+    //     new Date(stake.account.startDate.toNumber() * 1000)
+    //   );
+    //   console.log(
+    //     "stake.account.endDate",
+    //     new Date(stake.account.endDate.toNumber() * 1000)
+    //   );
+    //   console.log(
+    //     "stake.account.amountRedeemed",
+    //     stake.account.amountRedeemed.toString()
+    //   );
+    //   console.log(
+    //     "stake.account.amountOwed",
+    //     stake.account.amountOwed.toString()
+    //   );
+    // });
   };
 
   const opts = {
@@ -131,9 +135,9 @@ const Home: NextPage = () => {
     // const jollyranch = anchor.web3.Keypair.generate();
     // switch to pda account for same jollyranch testing
 
-    console.log("program", program);
+    // console.log("program", program);
 
-    console.log("program", program.programId.toString());
+    // console.log("program", program.programId.toString());
 
     // pda generation example
     let [jollyranch, jollyBump] =
@@ -142,8 +146,8 @@ const Home: NextPage = () => {
         program.programId
       );
 
-    console.log("jollyranch", jollyranch.toBase58());
-    console.log("jollyBump", jollyBump);
+    // console.log("jollyranch", jollyranch.toBase58());
+    // console.log("jollyBump", jollyBump);
 
     // use your own token here ex CHEESE
     const spl_token = new PublicKey(
@@ -155,11 +159,11 @@ const Home: NextPage = () => {
         [jollyranch.toBuffer()],
         program.programId
       );
-    console.log("recieverSplAccount", recieverSplAccount.toBase58());
-    console.log("splBump", splBump);
+    // console.log("recieverSplAccount", recieverSplAccount.toBase58());
+    // console.log("splBump", splBump);
 
-    console.log("wallet", wallet);
-    console.log("wallet pulbic key", wallet.publicKey.toString());
+    // console.log("wallet", wallet);
+    // console.log("wallet pulbic key", wallet.publicKey.toString());
 
     let wallet_token_account = await Token.getAssociatedTokenAddress(
       ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -167,15 +171,15 @@ const Home: NextPage = () => {
       spl_token,
       wallet.publicKey
     );
-    console.log("wallet_token_account", wallet_token_account.toBase58());
+    // console.log("wallet_token_account", wallet_token_account.toBase58());
 
     const jollyAccount = await program.account.jollyRanch.fetch(jollyranch);
-    console.log("jollyAccount", jollyAccount);
-    console.log("jollyAccount.amount", jollyAccount.amount.toString());
-    console.log(
-      "jollyAccount.amountRedeemed",
-      jollyAccount.amountRedeemed.toString()
-    );
+    // console.log("jollyAccount", jollyAccount);
+    // console.log("jollyAccount.amount", jollyAccount.amount.toString());
+    // console.log(
+    //   "jollyAccount.amountRedeemed",
+    //   jollyAccount.amountRedeemed.toString()
+    // );
 
     setJollyState({
       program,
@@ -191,7 +195,7 @@ const Home: NextPage = () => {
 
   const getStakedNfts = async () => {
     // console.log("jollyState program", jollyState.program);
-    const stakedNfts = await jollyState.program.account.stake.all([
+    const newStakedNFTs = await jollyState.program.account.stake.all([
       {
         memcmp: {
           offset: 8, // Discriminator
@@ -199,9 +203,57 @@ const Home: NextPage = () => {
         },
       },
     ]);
-    setStakedNFTs(stakedNfts);
-    console.log("stakedNfts on load:", stakedNfts);
-    return stakedNfts;
+    // console.log("ran getStakedNfts", newStakedNFTs);
+    setStakedNFTs(newStakedNFTs);
+    // console.log("stakedNfts on load:", stakedNfts);
+    // return stakedNfts;
+  };
+
+  const getStakedMints = async () => {
+    // console.log("running getStakedMints with these nft accounts:", stakedNFTs);
+    let allStakedMints = [];
+    Promise.all(
+      stakedNFTs.map(async (nft_account) => {
+        // console.log("nft_account", nft_account);
+        let [stake_spl, _stakeBump] =
+          await anchor.web3.PublicKey.findProgramAddress(
+            [nft_account.publicKey.toBuffer()],
+            jollyState.program.programId
+          );
+        // console.log("stake_spl", stake_spl.toString());
+        const nft_public_key = await axios
+          .post("https://api.mainnet-beta.solana.com", {
+            jsonrpc: "2.0",
+            id: 1,
+            method: "getAccountInfo",
+            params: [
+              stake_spl.toString(),
+              {
+                encoding: "jsonParsed",
+              },
+            ],
+          })
+          .then(async (res) => {
+            // console.log("res", res);
+            // console.log(
+            //   "res-mint",
+            //   res.data.result.value.data.parsed.info.mint
+            // );
+            // console.log("returned res data in getStakedMints");
+            return res.data.result.value.data.parsed.info.mint;
+          });
+
+        // console.log("nft_public_key", nft_public_key);
+        let nft = await getNftData(nft_public_key);
+        nft["nft_account"] = nft_account;
+        // console.log("running pushed nft to mints", nft);
+        allStakedMints.push(nft);
+      })
+    ).then(() => {
+      // console.log("setStakedMints", allStakedMints);
+      setLoadingStakes(false);
+      setStakedMints(allStakedMints);
+    });
   };
 
   useEffect(() => {
@@ -215,6 +267,12 @@ const Home: NextPage = () => {
       getStakedNfts();
     }
   }, [jollyState]);
+
+  useEffect(() => {
+    if (stakedNFTs.length > 0) {
+      getStakedMints();
+    }
+  }, [stakedNFTs]);
 
   const getNftData = async (nft_public_key) => {
     const tokenAccount = new PublicKey(nft_public_key);
@@ -257,38 +315,45 @@ const Home: NextPage = () => {
               {/* begin app windows */}
               <div className="border mockup-window border-base-300 m-8">
                 <div className="flex justify-center px-4 py-16 border-t border-base-300">
-                  {stakedNFTs.length > 0 ? (
+                  {loadingStakes && wallet.connected && (
+                    <h1 className="text-lg font-bold animate-pulse">
+                      Loading your Staked NFT&apos;s, please wait...
+                    </h1>
+                  )}
+                  {!wallet.connected && <p>please connect your wallet below</p>}
+                  {stakedMints.length > 0 && !loadingStakes && (
                     <div className="grid grid-cols-1 md:grid-cols-4">
-                      {stakedNFTs.map(async (nft_account) => {
-                        // console.log("nft_account", nft_account);
-                        let [stake_spl, stakeBump] =
-                          await anchor.web3.PublicKey.findProgramAddress(
-                            [nft_account.publicKey.toBuffer()],
-                            jollyState.program.programId
-                          );
-                        console.log("stake_spl", stake_spl.toString());
-                        const nft_public_key = await axios
-                          .post("https://api.mainnet-beta.solana.com", {
-                            jsonrpc: "2.0",
-                            id: 1,
-                            method: "getAccountInfo",
-                            params: [
-                              "ALUNJwkxSiduENK9rV7koFZTV7HFsacMAcno1TZVAgfZ",
-                              {
-                                encoding: "jsonParsed",
-                              },
-                            ],
-                          })
-                          .then(async (res) => {
-                            console.log("res", res);
-                            console.log("res-mint", res.data.result.value.data.parsed.info.mint);
+                      {stakedMints.map((nft) => {
+                        // console.log("nft", nft);
+                        // console.log(
+                        //   "nft.nft_account.account.amountOwed.toNumber()",
+                        //   nft.nft_account.account.amountOwed.toNumber()
+                        // );
+                        let percentage =
+                          (new Date().getTime() / 1000 -
+                            parseInt(nft.nft_account.account.startDate)) /
+                          (parseInt(nft.nft_account.account.endDate) -
+                            parseInt(nft.nft_account.account.startDate));
+                        let estimateRewards =
+                          nft.nft_account.account.amountOwed.toNumber() *
+                            percentage -
+                          nft.nft_account.account.amountRedeemed.toNumber();
 
-                            return res.data.result.value.data.parsed.info.mint;
-                          });
+                        setInterval(() => {
+                          percentage =
+                            (new Date().getTime() / 1000 -
+                              parseInt(nft.nft_account.account.startDate)) /
+                            (parseInt(nft.nft_account.account.endDate) -
+                              parseInt(nft.nft_account.account.startDate));
+                          estimateRewards =
+                            nft.nft_account.account.amountOwed.toNumber() *
+                              percentage -
+                            nft.nft_account.account.amountRedeemed.toNumber();
+                          stakingRewards[nft.nft_account.publicKey.toString()] =
+                            estimateRewards.toFixed(3);
+                          setStakingRewards({ ...stakingRewards });
+                        }, 5000);
 
-                        console.log("nft_public_key", nft_public_key);
-                        const nft = await getNftData(nft_public_key);
-                        console.log("nft", nft)
                         let cheese_index;
                         nft.attributes.map((cheese: any, index: number) => {
                           if (cheese.trait_type === "Cheeserank") {
@@ -310,7 +375,10 @@ const Home: NextPage = () => {
                         }
                         return (
                           <div
-                            key={nft.id}
+                            key={
+                              nft.nft_account.publicKey.toString() ||
+                              Math.random()
+                            }
                             className="card w-72 card-bordered card-compact lg:card-normal shadow-xl bg-primary-content text"
                           >
                             <figure>
@@ -322,12 +390,22 @@ const Home: NextPage = () => {
                             <div className="card-body">
                               <h2 className="card-title">{nft.name}</h2>
                               <p>Cheese Rank: {cheese}</p>
+                              <div className="">
+                                <p>Estimate Rewards:</p>
+                                <p className="badge badge-outline bg-primary">
+                                  {stakingRewards[
+                                    nft.nft_account.publicKey.toString()
+                                  ] || "loading..."}{" "}
+                                  Cheeze
+                                </p>
+                              </div>
                             </div>
                           </div>
                         );
                       })}
                     </div>
-                  ) : (
+                  )}
+                  {stakedMints.length == 0 && !loadingStakes && (
                     <p>No NFTs currently staked.</p>
                   )}
                 </div>
