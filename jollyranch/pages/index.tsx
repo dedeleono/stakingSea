@@ -238,7 +238,7 @@ const Home: NextPage = () => {
             //   res.data.result.value.data.parsed.info.mint
             // );
             // console.log("returned res data in getStakedMints");
-            return res.data.result.value.data.parsed.info.mint;
+            return res.data.result.value?.data.parsed.info.mint;
           });
 
         // console.log("nft_public_key", nft_public_key);
@@ -391,9 +391,9 @@ const Home: NextPage = () => {
                               <div className="">
                                 <p>Estimate Rewards:</p>
                                 <p className="badge badge-outline bg-primary">
-                                  {stakingRewards[
+                                  {(stakingRewards[
                                     nft.nft_account.publicKey.toString()
-                                  ] || "loading..."}{" "}
+                                  ]/1000).toFixed(3) || "loading..."}{" "}
                                   Cheeze
                                 </p>
                               </div>
