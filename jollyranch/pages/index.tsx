@@ -1,6 +1,5 @@
 import * as anchor from "@project-serum/anchor";
 import { Program, Provider, BN } from "@project-serum/anchor";
-import { NftStaker } from "../lib/types/nft_staker";
 import { ConfirmOptions } from "@solana/web3.js";
 import * as bs58 from "bs58";
 import {
@@ -130,8 +129,10 @@ const Home: NextPage = () => {
     const ratbastards = new anchor.web3.PublicKey(
       "2sKvVnq3rwQRay5WNDHhsMNEpNQAJ4G9o8JTN5WjUpxo"
     );
-    // @ts-ignore
-    const program: Program<NftStaker> = new Program(idl, ratbastards, provider);
+    // console.log("ratbastards", ratbastards);
+    // console.log("ratbastards", ratbastards.toString());
+    const program = new Program(idl, ratbastards.toString(), provider);
+    // console.log("program got ran", program);
     // default behavior new jollyranch each test
 
     // const jollyranch = anchor.web3.Keypair.generate();
@@ -175,20 +176,22 @@ const Home: NextPage = () => {
     );
     // console.log("wallet_token_account", wallet_token_account.toBase58());
 
-    const jollyAccount = await program.account.jollyRanch.fetch(jollyranch);
+    const jollyAccount = await program.account.jollyRanch.fetch(
+      jollyranch.toString()
+    );
     // console.log("jollyAccount", jollyAccount);
     // console.log("jollyAccount.amount", jollyAccount.amount.toString());
     // console.log(
     //   "jollyAccount.amountRedeemed",
     //   jollyAccount.amountRedeemed.toString()
     // );
-    console.log("program", program);
-    console.log("jollyAccount", jollyAccount);
-    console.log("jollyAccount amount", jollyAccount.amount.toNumber());
-    console.log(
-      "jollyAccount amount redeemed",
-      jollyAccount.amountRedeemed.toNumber()
-    );
+    // console.log("program", program);
+    // console.log("jollyAccount", jollyAccount);
+    // console.log("jollyAccount amount", jollyAccount.amount.toNumber());
+    // console.log(
+    //   "jollyAccount amount redeemed",
+    //   jollyAccount.amountRedeemed.toNumber()
+    // );
     setJollyState({
       program,
       connection,
@@ -254,6 +257,7 @@ const Home: NextPage = () => {
             [nft_account.publicKey.toBuffer()],
             jollyState.program.programId
           );
+        // console.log("stake_spl", stake_spl);
         // console.log("stake_spl", stake_spl.toString());
         const nft_public_key = await axios
           .post("https://api.mainnet-beta.solana.com", {
@@ -494,9 +498,10 @@ const Home: NextPage = () => {
                             <div className="btn-group grid grid-cols-3 content-center">
                               <input
                                 type="radio"
-                                name="options"
+                                name={`options ${nft.id}`}
                                 id="option1"
                                 data-title="10"
+                                defaultChecked
                                 onChange={(e) => {
                                   lockup = 1;
                                   e.target.checked = true;
@@ -505,7 +510,7 @@ const Home: NextPage = () => {
                               />
                               <input
                                 type="radio"
-                                name="options"
+                                name={`options ${nft.id}`}
                                 id="option2"
                                 data-title="20"
                                 onChange={(e) => {
@@ -516,7 +521,7 @@ const Home: NextPage = () => {
                               />
                               <input
                                 type="radio"
-                                name="options"
+                                name={`options ${nft.id}`}
                                 id="option3"
                                 data-title="30"
                                 onChange={(e) => {
