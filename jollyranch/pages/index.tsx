@@ -116,8 +116,11 @@ const Home: NextPage = () => {
     const opts = {
       preflightCommitment: "recent" as ConfirmOptions,
     };
-
-    const network = "https://solana-api.projectserum.com";
+    let endpoint = JSON.parse(
+      process.env.NEXT_PUBLIC_QUICKNODE_MAINNET_BETA_RPC_ENDPOINT
+    );
+    endpoint = endpoint[Math.floor(Math.random() * endpoint.length)];
+    const network = endpoint;
     const connection = new anchor.web3.Connection(
       network,
       opts.preflightCommitment
@@ -257,8 +260,14 @@ const Home: NextPage = () => {
           );
         // console.log("stake_spl", stake_spl);
         // console.log("stake_spl", stake_spl.toString());
+
+        let endpoint = JSON.parse(
+          process.env.NEXT_PUBLIC_QUICKNODE_MAINNET_BETA_RPC_ENDPOINT
+        );
+        endpoint = endpoint[Math.floor(Math.random() * endpoint.length)];
+
         const nft_public_key = await axios
-          .post("https://api.mainnet-beta.solana.com", {
+          .post(endpoint, {
             jsonrpc: "2.0",
             id: 1,
             method: "getAccountInfo",
@@ -302,11 +311,14 @@ const Home: NextPage = () => {
     if (jollyState["program"]) {
       getStakedNfts();
     }
-  }, [jollyState]);
+  }, [jollyState, nfts]);
 
   useEffect(() => {
     if (stakedNFTs.length > 0) {
+      setLoadingStakes(true);
       getStakedMints();
+    } else {
+      setLoadingStakes(false);
     }
   }, [stakedNFTs]);
 
@@ -335,13 +347,17 @@ const Home: NextPage = () => {
                   )}
                   {!wallet.connected && <p>please connect your wallet below</p>}
                   {stakedMints.length > 0 && !loadingStakes && (
-                    <div className="grid grid-cols-1 md:grid-cols-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                       {stakedMints.map((nft) => {
                         // console.log("nft", nft);
                         // console.log(
                         //   "nft.nft_account.account.amountOwed.toNumber()",
                         //   nft.nft_account.account.amountOwed.toNumber()
                         // );
+                        const canWithdraw =
+                          nft.nft_account.account.endDate -
+                            Math.round(new Date().getTime() / 1000) >=
+                          0;
                         let percentage =
                           (new Date().getTime() / 1000 -
                             parseInt(nft.nft_account.account.startDate)) /
@@ -365,34 +381,14 @@ const Home: NextPage = () => {
                           stakingRewards[nft.nft_account.publicKey.toString()] =
                             estimateRewards.toFixed(6);
                           setStakingRewards({ ...stakingRewards });
-                        }, 3000);
-
-                        let cheese_index;
-                        nft.attributes.map((cheese: any, index: number) => {
-                          if (cheese.trait_type === "Cheeserank") {
-                            cheese_index = index;
-                          }
-                        });
-                        let cheese;
-
-                        if (nft.attributes[cheese_index].value === "1cheeze") {
-                          cheese = 1;
-                        } else if (
-                          nft.attributes[cheese_index].value === "2cheeze"
-                        ) {
-                          cheese = 2;
-                        } else if (
-                          nft.attributes[cheese_index].value === "3cheeze"
-                        ) {
-                          cheese = 3;
-                        }
+                        }, 5000);
                         return (
                           <div
                             key={
                               nft.nft_account.publicKey.toString() ||
                               Math.random()
                             }
-                            className="card w-72 m-4 card-bordered card-compact lg:card-normal shadow-xl bg-primary-content text"
+                            className="card w-72 m-4 card-bordered card-compact shadow-xl bg-primary-content text"
                           >
                             <figure>
                               <img
@@ -402,7 +398,19 @@ const Home: NextPage = () => {
                             </figure>
                             <div className="card-body">
                               <h2 className="card-title">{nft.name}</h2>
-                              <p>Cheese Rank: {cheese}</p>
+                              <p className="">
+                                Staked:{" "}
+                                {new Date(
+                                  nft.nft_account.account.startDate * 1000
+                                ).toLocaleDateString("en-US")}
+                              </p>
+                              <p className="">
+                                Ends:{" "}
+                                {new Date(
+                                  nft.nft_account.account.endDate * 1000
+                                ).toLocaleDateString("en-US")}
+                              </p>
+                              <p className="mb-3"></p>
                               <div className="">
                                 <p>Estimate Rewards:</p>
                                 <p className="badge badge-outline bg-primary">
@@ -413,11 +421,20 @@ const Home: NextPage = () => {
                                         stakingRewards[
                                           nft.nft_account.publicKey.toString()
                                         ] / 1000
-                                      ).toFixed(6)
-                                    : "Loading"}{" "}
-                                  $CHEEZE
+                                      ).toFixed(6) + " $CHEEZE"
+                                    : "Loading..."}
                                 </p>
                               </div>
+                              {/* <div className="justify-center card-actions">
+                                <button className="btn btn-secondary">
+                                  redeem
+                                </button>
+                                {canWithdraw && (
+                                  <button className="btn btn-ghost">
+                                    unstake
+                                  </button>
+                                )}
+                              </div> */}
                             </div>
                           </div>
                         );
@@ -425,7 +442,9 @@ const Home: NextPage = () => {
                     </div>
                   )}
                   {stakedMints.length == 0 && !loadingStakes && (
-                    <p>No NFTs currently staked.</p>
+                    <p className="text-lg font-bold">
+                      You don't have any ratbastards staked.
+                    </p>
                   )}
                 </div>
               </div>
@@ -451,7 +470,7 @@ const Home: NextPage = () => {
                     )}
                     {!isLoading && wallet.connected && nfts.length === 0 && (
                       <h1 className="text-lg font-bold">
-                        You do not have &quot;NFTs&quot;
+                        You don't have any ratbastards in your wallet.
                       </h1>
                     )}
                   </div>
