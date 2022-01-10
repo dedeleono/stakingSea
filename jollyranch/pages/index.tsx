@@ -296,6 +296,34 @@ const Home: NextPage = () => {
       })
     ).then(() => {
       // console.log("setStakedMints", allStakedMints);
+      allStakedMints.map((nft) => {
+        let percentage =
+          (new Date().getTime() / 1000 -
+            parseInt(nft.nft_account.account.startDate)) /
+          (parseInt(nft.nft_account.account.endDate) -
+            parseInt(nft.nft_account.account.startDate));
+        let estimateRewards =
+          nft.nft_account.account.amountOwed.toNumber() * percentage -
+          nft.nft_account.account.amountRedeemed.toNumber();
+        stakingRewards[nft.nft_account.publicKey.toString()] =
+          estimateRewards.toFixed(6);
+      });
+      setStakedMints(allStakedMints);
+      setInterval(() => {
+        allStakedMints.map((nft) => {
+          let percentage =
+            (new Date().getTime() / 1000 -
+              parseInt(nft.nft_account.account.startDate)) /
+            (parseInt(nft.nft_account.account.endDate) -
+              parseInt(nft.nft_account.account.startDate));
+          let estimateRewards =
+            nft.nft_account.account.amountOwed.toNumber() * percentage -
+            nft.nft_account.account.amountRedeemed.toNumber();
+          stakingRewards[nft.nft_account.publicKey.toString()] =
+            estimateRewards.toFixed(6);
+        });
+        setStakingRewards({ ...stakingRewards });
+      }, 3000);
       setLoadingStakes(false);
       setStakedMints(allStakedMints);
     });
@@ -311,7 +339,7 @@ const Home: NextPage = () => {
     if (jollyState["program"]) {
       getStakedNfts();
     }
-  }, [jollyState, nfts]);
+  }, [jollyState]);
 
   useEffect(() => {
     if (stakedNFTs.length > 0) {
@@ -348,7 +376,8 @@ const Home: NextPage = () => {
                   {!wallet.connected && <p>please connect your wallet below</p>}
                   {stakedMints.length > 0 && !loadingStakes && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                      {stakedMints.map((nft) => {
+                      {stakedMints.map((nft, i) => {
+                        // console.log("id", i);
                         // console.log("nft", nft);
                         // console.log(
                         //   "nft.nft_account.account.amountOwed.toNumber()",
@@ -358,30 +387,6 @@ const Home: NextPage = () => {
                           nft.nft_account.account.endDate -
                             Math.round(new Date().getTime() / 1000) >=
                           0;
-                        let percentage =
-                          (new Date().getTime() / 1000 -
-                            parseInt(nft.nft_account.account.startDate)) /
-                          (parseInt(nft.nft_account.account.endDate) -
-                            parseInt(nft.nft_account.account.startDate));
-                        let estimateRewards =
-                          nft.nft_account.account.amountOwed.toNumber() *
-                            percentage -
-                          nft.nft_account.account.amountRedeemed.toNumber();
-
-                        setInterval(() => {
-                          percentage =
-                            (new Date().getTime() / 1000 -
-                              parseInt(nft.nft_account.account.startDate)) /
-                            (parseInt(nft.nft_account.account.endDate) -
-                              parseInt(nft.nft_account.account.startDate));
-                          estimateRewards =
-                            nft.nft_account.account.amountOwed.toNumber() *
-                              percentage -
-                            nft.nft_account.account.amountRedeemed.toNumber();
-                          stakingRewards[nft.nft_account.publicKey.toString()] =
-                            estimateRewards.toFixed(6);
-                          setStakingRewards({ ...stakingRewards });
-                        }, 5000);
                         return (
                           <div
                             key={
@@ -475,7 +480,7 @@ const Home: NextPage = () => {
                     )}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3">
-                    {nfts.map((nft) => {
+                    {nfts.map((nft, i) => {
                       // console.log("nft", nft);
                       let lockup = 1;
                       let cheese_index;
@@ -499,7 +504,7 @@ const Home: NextPage = () => {
                       }
                       return (
                         <div
-                          key={nft.id || Math.random()}
+                          key={i || Math.random()}
                           className="card w-72 m-4 card-bordered card-compact lg:card-normal shadow-xl bg-primary-content text"
                         >
                           <figure>
@@ -515,7 +520,7 @@ const Home: NextPage = () => {
                             <div className="btn-group grid grid-cols-3 content-center">
                               <input
                                 type="radio"
-                                name={`options ${nft.id}`}
+                                name={`options ${i}`}
                                 id="option1"
                                 data-title="10"
                                 defaultChecked
@@ -527,7 +532,7 @@ const Home: NextPage = () => {
                               />
                               <input
                                 type="radio"
-                                name={`options ${nft.id}`}
+                                name={`options ${i}`}
                                 id="option2"
                                 data-title="20"
                                 onChange={(e) => {
@@ -538,7 +543,7 @@ const Home: NextPage = () => {
                               />
                               <input
                                 type="radio"
-                                name={`options ${nft.id}`}
+                                name={`options ${i}`}
                                 id="option3"
                                 data-title="30"
                                 onChange={(e) => {
