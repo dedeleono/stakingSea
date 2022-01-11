@@ -20,7 +20,7 @@ import idl_type from "../lib/nft_staker.json";
 
 import axios from "axios";
 
-import Router from "next/router";
+import { useRouter } from "next/router";
 
 import { programs } from "@metaplex/js";
 const {
@@ -40,6 +40,8 @@ type jollyProgramState = {
 };
 
 const Home: NextPage = () => {
+  const router = useRouter();
+  const refreshData = () => router.replace(router.asPath);
   const wallet = useWallet();
   const [isLoading, nfts]: any = useWalletNfts();
   const [jollyState, setJollyState] = useState({} as jollyProgramState);
@@ -47,6 +49,7 @@ const Home: NextPage = () => {
   const [stakedMints, setStakedMints] = useState([]);
   const [loadingStakes, setLoadingStakes] = useState(true);
   const [stakingRewards, setStakingRewards] = useState({});
+  const [refreshStateCounter, setRefreshStateCounter] = useState(0);
 
   const idl = idl_type as anchor.Idl;
 
@@ -308,7 +311,7 @@ const Home: NextPage = () => {
         stakingRewards[nft.nft_account.publicKey.toString()] =
           estimateRewards.toFixed(6);
       });
-      setStakedMints(allStakedMints);
+      setStakingRewards({ ...stakingRewards });
       setInterval(() => {
         allStakedMints.map((nft) => {
           let percentage =
@@ -324,18 +327,115 @@ const Home: NextPage = () => {
         });
         setStakingRewards({ ...stakingRewards });
       }, 3000);
+
       setLoadingStakes(false);
       setStakedMints(allStakedMints);
     });
   };
 
+  const redeemRewards = async (nftPubKey) => {
+    // console.log(
+    //   "sender token starting balance: ",
+    //   await jollyState.program.provider.connection.getTokenAccountBalance(
+    //     jollyState.wallet_token_account
+    //   )
+    // );
+    // get staked nfts
+    // const stakedNfts = await jollyState.program.account.stake.all([
+    //   {
+    //     memcmp: {
+    //       offset: 8, // Discriminator
+    //       bytes: bs58.encode(
+    //         jollyState.program.provider.wallet.publicKey.toBuffer()
+    //       ),
+    //     },
+    //   },
+    // ]);
+
+    await jollyState.program.rpc.redeemRewards({
+      accounts: {
+        stake: nftPubKey.toString(),
+        jollyranch: jollyState.jollyranch.toString(),
+        authority: jollyState.program.provider.wallet.publicKey.toString(),
+        senderSplAccount: jollyState.recieverSplAccount.toString(),
+        recieverSplAccount: jollyState.wallet_token_account.toString(),
+        tokenProgram: TOKEN_PROGRAM_ID.toString(),
+        systemProgram: anchor.web3.SystemProgram.programId.toString(),
+      },
+    });
+    // console.log(
+    //   "sender token ending balance: ",
+    //   await jollyState.program.provider.connection.getTokenAccountBalance(
+    //     jollyState.wallet_token_account
+    //   )
+    // );
+  };
+
+  const redeemNFT = async (nftPubKey) => {
+    let wallet_nft_account = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      nftPubKey,
+      jollyState.program.provider.wallet.publicKey
+    );
+    // console.log(
+    //   "sender nft starting balance: ",
+    //   await jollyState.program.provider.connection.getTokenAccountBalance(
+    //     wallet_nft_account
+    //   )
+    // );
+    // get staked nfts
+    // const stakedNfts = await jollyState.program.account.stake.all([
+    //   {
+    //     memcmp: {
+    //       offset: 8, // Discriminator
+    //       bytes: bs58.encode(
+    //         jollyState.program.provider.wallet.publicKey.toBuffer()
+    //       ),
+    //     },
+    //   },
+    // ]);
+
+    // console.log("stakedNfts", stakedNfts);
+
+    let [stake_spl, _stakeBump] =
+      await anchor.web3.PublicKey.findProgramAddress(
+        [nftPubKey.toBuffer()],
+        jollyState.program.programId
+      );
+
+    await jollyState.program.rpc.redeemNft({
+      accounts: {
+        stake: nftPubKey.toString(),
+        jollyranch: jollyState.jollyranch.toString(),
+        authority: jollyState.program.provider.wallet.publicKey.toString(),
+        senderSplAccount: stake_spl.toString(),
+        recieverSplAccount: wallet_nft_account.toString(),
+        tokenProgram: TOKEN_PROGRAM_ID.toString(),
+        systemProgram: anchor.web3.SystemProgram.programId.toString(),
+      },
+    });
+    // console.log(
+    //   "sender nft ending balance: ",
+    //   await jollyState.program.provider.connection.getTokenAccountBalance(
+    //     wallet_nft_account
+    //   )
+    // );
+  };
+
   useEffect(() => {
+    // console.log("intervals cleared");
+    let highestTimeoutId = setTimeout(";");
+    for (let i = 0; i < highestTimeoutId; i++) {
+      clearTimeout(i);
+    }
     if (wallet.publicKey) {
       setupJollyRanch();
     }
-  }, [wallet]);
+  }, [wallet, refreshStateCounter]);
 
   useEffect(() => {
+    console.log("react nft state changed");
     if (jollyState["program"]) {
       getStakedNfts();
     }
@@ -384,8 +484,8 @@ const Home: NextPage = () => {
                         //   nft.nft_account.account.amountOwed.toNumber()
                         // );
                         const canWithdraw =
-                          nft.nft_account.account.endDate -
-                            Math.round(new Date().getTime() / 1000) >=
+                          Math.round(new Date().getTime() / 1000) -
+                            nft.nft_account.account.endDate >=
                           0;
                         return (
                           <div
@@ -430,16 +530,36 @@ const Home: NextPage = () => {
                                     : "Loading..."}
                                 </p>
                               </div>
-                              {/* <div className="justify-center card-actions">
-                                <button className="btn btn-secondary">
+                              <div className="justify-center card-actions">
+                                <button
+                                  className="btn btn-secondary"
+                                  onClick={async () => {
+                                    await redeemRewards(
+                                      nft.nft_account.publicKey
+                                    );
+                                    setRefreshStateCounter(
+                                      refreshStateCounter + 1
+                                    );
+                                  }}
+                                >
                                   redeem
                                 </button>
                                 {canWithdraw && (
-                                  <button className="btn btn-ghost">
+                                  <button
+                                    className="btn btn-ghost"
+                                    onClick={async () => {
+                                      await redeemNFT(
+                                        nft.nft_account.publicKey
+                                      );
+                                      setRefreshStateCounter(
+                                        refreshStateCounter + 1
+                                      );
+                                    }}
+                                  >
                                     unstake
                                   </button>
                                 )}
-                              </div> */}
+                              </div>
                             </div>
                           </div>
                         );
@@ -480,7 +600,7 @@ const Home: NextPage = () => {
                     )}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3">
-                    {nfts.map((nft, i) => {
+                    {nfts.map((nft) => {
                       // console.log("nft", nft);
                       let lockup = 1;
                       let cheese_index;
@@ -504,7 +624,10 @@ const Home: NextPage = () => {
                       }
                       return (
                         <div
-                          key={i || Math.random()}
+                          key={
+                            nft.nft_account.publicKey.toString() ||
+                            Math.random()
+                          }
                           className="card w-72 m-4 card-bordered card-compact lg:card-normal shadow-xl bg-primary-content text"
                         >
                           <figure>
@@ -520,7 +643,7 @@ const Home: NextPage = () => {
                             <div className="btn-group grid grid-cols-3 content-center">
                               <input
                                 type="radio"
-                                name={`options ${i}`}
+                                name={`options ${nft.nft_account.publicKey.toString()}`}
                                 id="option1"
                                 data-title="10"
                                 defaultChecked
@@ -532,7 +655,7 @@ const Home: NextPage = () => {
                               />
                               <input
                                 type="radio"
-                                name={`options ${i}`}
+                                name={`options ${nft.nft_account.publicKey.toString()}`}
                                 id="option2"
                                 data-title="20"
                                 onChange={(e) => {
@@ -543,7 +666,7 @@ const Home: NextPage = () => {
                               />
                               <input
                                 type="radio"
-                                name={`options ${i}`}
+                                name={`options ${nft.nft_account.publicKey.toString()}`}
                                 id="option3"
                                 data-title="30"
                                 onChange={(e) => {
@@ -557,6 +680,7 @@ const Home: NextPage = () => {
                               className="btn btn-primary mt-4"
                               onClick={async () => {
                                 await stakeNFT(nft.mint, cheese, lockup);
+                                setRefreshStateCounter(refreshStateCounter + 1);
                               }}
                             >
                               Stake
