@@ -501,23 +501,37 @@ const Home: NextPage = () => {
                                 alt="rat bastard nft image"
                               />
                             </figure>
-                            <div className="card-body">
+                            <div className="card-body text-center items-center">
                               <h2 className="card-title">{nft.name}</h2>
-                              <p className="">
-                                Staked:{" "}
+                              <p>Started</p>
+                              <p className="badge badge-outline bg-ghost badge-sm text-white">
                                 {new Date(
                                   nft.nft_account.account.startDate * 1000
-                                ).toLocaleDateString("en-US")}
+                                ).toLocaleDateString("en-US", {
+                                  weekday: "short", // long, short, narrow
+                                  day: "numeric", // numeric, 2-digit
+                                  year: "numeric", // numeric, 2-digit
+                                  month: "short", // numeric, 2-digit, long, short, narrow
+                                  hour: "numeric", // numeric, 2-digit
+                                  minute: "numeric", // numeric, 2-digit
+                                })}
                               </p>
-                              <p className="">
-                                Ends:{" "}
+                              <p>Ends</p>
+                              <p className="badge badge-outline bg-ghost badge-sm text-white">
                                 {new Date(
                                   nft.nft_account.account.endDate * 1000
-                                ).toLocaleDateString("en-US")}
+                                ).toLocaleDateString("en-US", {
+                                  weekday: "short", // long, short, narrow
+                                  day: "numeric", // numeric, 2-digit
+                                  year: "numeric", // numeric, 2-digit
+                                  month: "short", // numeric, 2-digit, long, short, narrow
+                                  hour: "numeric", // numeric, 2-digit
+                                  minute: "numeric", // numeric, 2-digit
+                                })}
                               </p>
                               <p className="mb-3"></p>
                               <div className="">
-                                <p>Estimate Rewards:</p>
+                                <p>Estimate Rewards</p>
                                 <p className="badge badge-outline bg-primary">
                                   {stakingRewards[
                                     nft.nft_account.publicKey.toString()
@@ -566,11 +580,13 @@ const Home: NextPage = () => {
                       })}
                     </div>
                   )}
-                  {stakedMints.length == 0 && !loadingStakes && (
-                    <p className="text-lg font-bold">
-                      You don't have any ratbastards staked.
-                    </p>
-                  )}
+                  {stakedMints.length == 0 &&
+                    !loadingStakes &&
+                    wallet.publicKey && (
+                      <p className="text-lg font-bold">
+                        You don't have any ratbastards staked.
+                      </p>
+                    )}
                 </div>
               </div>
 
