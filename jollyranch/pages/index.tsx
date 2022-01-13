@@ -51,6 +51,7 @@ const Home: NextPage = () => {
   const [stakingRewards, setStakingRewards] = useState({});
   const [refreshStateCounter, setRefreshStateCounter] = useState(0);
   const [totalRatsStaked, setTotaRatsStaked] = useState(0);
+  const [lockup, setLockup] = useState(1);
 
   const idl = idl_type as anchor.Idl;
 
@@ -310,8 +311,7 @@ const Home: NextPage = () => {
         let estimateRewards =
           nft.nft_account.account.amountOwed.toNumber() * percentage -
           nft.nft_account.account.amountRedeemed.toNumber();
-        stakingRewards[nft.nft_account.id.toString()] =
-          estimateRewards.toFixed(4);
+        stakingRewards[nft.nft_account.id.toString()] = estimateRewards;
       });
       setStakingRewards({ ...stakingRewards });
       // setInterval(() => {
@@ -325,7 +325,7 @@ const Home: NextPage = () => {
       //       nft.nft_account.account.amountOwed.toNumber() * percentage -
       //       nft.nft_account.account.amountRedeemed.toNumber();
       //     stakingRewards[nft.nft_account.id.toString()] =
-      //       estimateRewards.toFixed(4);
+      //       estimateRewards;
       //   });
       //   setStakingRewards({ ...stakingRewards });
       // }, 3000);
@@ -487,13 +487,6 @@ const Home: NextPage = () => {
                             {totalRatsStaked.toLocaleString("en-US")}/3,369
                           </div>
                           <div className="stat-title">Rats Staked</div>
-                          <div className="stat-desc">
-                            <progress
-                              value={`${totalRatsStaked}`}
-                              max="3369"
-                              className="progress progress-secondary"
-                            ></progress>
-                          </div>
                         </div>
                       </div>
                     )}
@@ -514,7 +507,7 @@ const Home: NextPage = () => {
               </div>
               <div className="border mockup-window border-base-300 mb-8">
                 {/* begin app windows */}
-                <div className="flex justify-center px-4 py-16 border-t border-base-300">
+                <div className="flex justify-center px-2 py-4 border-t border-base-300">
                   {loadingStakes && wallet.connected && (
                     <h1 className="text-lg font-bold animate-pulse">
                       Loading your Staked NFT&apos;s, please wait...
@@ -580,11 +573,11 @@ const Home: NextPage = () => {
                                   {stakingRewards[
                                     nft.nft_account.id.toString()
                                   ] > -1
-                                    ? (
-                                        stakingRewards[
-                                          nft.nft_account.id.toString()
-                                        ] / 1000
-                                      ).toFixed(4) + " $CHEEZE"
+                                    ? stakingRewards[
+                                        nft.nft_account.id.toString()
+                                      ] /
+                                        1000 +
+                                      " $CHEEZE"
                                     : "Loading..."}
                                 </p>
                               </div>
@@ -635,7 +628,7 @@ const Home: NextPage = () => {
               </div>
 
               <div className="border mockup-window border-base-300 mb-8">
-                <div className="flex justify-center px-4 py-16 border-t border-base-300">
+                <div className="flex justify-center px-2 py-4 border-t border-base-300">
                   <div>
                     {isLoading && (
                       <h1 className="text-lg font-bold animate-pulse">
@@ -654,7 +647,6 @@ const Home: NextPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3">
                     {nfts.map((nft) => {
                       // console.log("nft", nft);
-                      let lockup = 1;
                       let cheese_index;
                       nft.attributes.map((cheese: any, index: number) => {
                         if (cheese.trait_type === "Cheeserank") {
@@ -697,7 +689,7 @@ const Home: NextPage = () => {
                                 data-title="10"
                                 defaultChecked
                                 onChange={(e) => {
-                                  lockup = 1;
+                                  setLockup(1);
                                   e.target.checked = true;
                                 }}
                                 className="btn bg-neutral-focus"
@@ -708,7 +700,7 @@ const Home: NextPage = () => {
                                 id="option2"
                                 data-title="20"
                                 onChange={(e) => {
-                                  lockup = 2;
+                                  setLockup(2);
                                   e.target.checked = true;
                                 }}
                                 className="btn bg-neutral-focus"
@@ -719,7 +711,7 @@ const Home: NextPage = () => {
                                 id="option3"
                                 data-title="30"
                                 onChange={(e) => {
-                                  lockup = 3;
+                                  setLockup(3);
                                   e.target.checked = true;
                                 }}
                                 className="btn bg-neutral-focus"
@@ -728,6 +720,7 @@ const Home: NextPage = () => {
                             <button
                               className="btn btn-primary mt-4"
                               onClick={async () => {
+                                // console.log(nft.mint, cheese, lockup);
                                 await stakeNFT(nft.mint, cheese, lockup);
                                 setRefreshStateCounter(refreshStateCounter + 1);
                               }}
