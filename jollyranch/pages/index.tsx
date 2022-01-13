@@ -23,6 +23,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 
 import { programs } from "@metaplex/js";
+import NFTLoader from "../components/NFTLoader";
 const {
   metadata: { Metadata },
 } = programs;
@@ -51,7 +52,6 @@ const Home: NextPage = () => {
   const [stakingRewards, setStakingRewards] = useState({});
   const [refreshStateCounter, setRefreshStateCounter] = useState(0);
   const [totalRatsStaked, setTotaRatsStaked] = useState(0);
-  const [lockup, setLockup] = useState(1);
 
   const idl = idl_type as anchor.Idl;
 
@@ -431,11 +431,11 @@ const Home: NextPage = () => {
   };
 
   useEffect(() => {
-    // console.log("intervals cleared");
-    let highestTimeoutId = setTimeout(";");
-    for (let i = 0; i < highestTimeoutId; i++) {
-      clearTimeout(i);
-    }
+    // console.log("state counter updated");
+    // let highestTimeoutId = setTimeout(";");
+    // for (let i = 0; i < highestTimeoutId; i++) {
+    //   clearTimeout(i);
+    // }
     if (wallet.publicKey) {
       setupJollyRanch();
     }
@@ -517,102 +517,21 @@ const Home: NextPage = () => {
                   {stakedMints.length > 0 && !loadingStakes && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                       {stakedMints.map((nft, i) => {
-                        // console.log("id", i);
-                        // console.log("nft", nft);
-                        // console.log(
-                        //   "nft.nft_account.account.amountOwed.toNumber()",
-                        //   nft.nft_account.account.amountOwed.toNumber()
-                        // );
-                        const canWithdraw =
-                          Math.round(new Date().getTime() / 1000) -
-                            nft.nft_account.account.endDate >=
-                          0;
                         return (
-                          <div
-                            key={nft.nft_account.id.toString() || Math.random()}
-                            className="card w-72 m-4 card-bordered card-compact shadow-xl bg-primary-content text"
-                          >
-                            <figure>
-                              <img
-                                src={`${nft.image}`}
-                                alt="rat bastard nft image"
-                              />
-                            </figure>
-                            <div className="card-body text-center items-center">
-                              <h2 className="card-title">{nft.name}</h2>
-                              <p>Started</p>
-                              <p className="badge badge-outline bg-ghost badge-sm text-white">
-                                {new Date(
-                                  nft.nft_account.account.startDate * 1000
-                                ).toLocaleDateString("en-US", {
-                                  weekday: "short", // long, short, narrow
-                                  day: "numeric", // numeric, 2-digit
-                                  year: "numeric", // numeric, 2-digit
-                                  month: "short", // numeric, 2-digit, long, short, narrow
-                                  hour: "numeric", // numeric, 2-digit
-                                  minute: "numeric", // numeric, 2-digit
-                                })}
-                              </p>
-                              <p>Ends</p>
-                              <p className="badge badge-outline bg-ghost badge-sm text-white">
-                                {new Date(
-                                  nft.nft_account.account.endDate * 1000
-                                ).toLocaleDateString("en-US", {
-                                  weekday: "short", // long, short, narrow
-                                  day: "numeric", // numeric, 2-digit
-                                  year: "numeric", // numeric, 2-digit
-                                  month: "short", // numeric, 2-digit, long, short, narrow
-                                  hour: "numeric", // numeric, 2-digit
-                                  minute: "numeric", // numeric, 2-digit
-                                })}
-                              </p>
-                              <p className="mb-3"></p>
-                              <div className="">
-                                <p>Estimate Rewards</p>
-                                <p className="badge badge-outline bg-primary">
-                                  {stakingRewards[
-                                    nft.nft_account.id.toString()
-                                  ] > -1
-                                    ? stakingRewards[
-                                        nft.nft_account.id.toString()
-                                      ] /
-                                        1000 +
-                                      " $CHEEZE"
-                                    : "Loading..."}
-                                </p>
-                              </div>
-                              <div className="justify-center card-actions">
-                                <button
-                                  className="btn btn-secondary"
-                                  onClick={async () => {
-                                    await redeemRewards(
-                                      nft.nft_account.publicKey
-                                    );
-                                    setRefreshStateCounter(
-                                      refreshStateCounter + 1
-                                    );
-                                  }}
-                                >
-                                  redeem
-                                </button>
-                                {canWithdraw && (
-                                  <button
-                                    className="btn btn-ghost"
-                                    onClick={async () => {
-                                      await redeemNFT(
-                                        nft.nft_account.publicKey
-                                      );
-                                      setRefreshStateCounter(
-                                        refreshStateCounter + 1
-                                      );
-                                    }}
-                                  >
-                                    unstake
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
+                          <NFTLoader
+                            key={i}
+                            isStaked={true}
+                            nft={nft}
+                            stakingRewards={stakingRewards}
+                            onRedeem={async () => {
+                              await redeemRewards(nft.nft_account.publicKey);
+                              setRefreshStateCounter(refreshStateCounter + 1);
+                            }}
+                            unStake={async () => {
+                              await redeemNFT(nft.nft_account.publicKey);
+                              setRefreshStateCounter(refreshStateCounter + 1);
+                            }}
+                          />
                         );
                       })}
                     </div>
@@ -646,89 +565,22 @@ const Home: NextPage = () => {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3">
                     {nfts.map((nft) => {
-                      // console.log("nft", nft);
-                      let cheese_index;
-                      nft.attributes.map((cheese: any, index: number) => {
-                        if (cheese.trait_type === "Cheeserank") {
-                          cheese_index = index;
-                        }
-                      });
-                      let cheese;
-
-                      if (nft.attributes[cheese_index].value === "1cheeze") {
-                        cheese = 1;
-                      } else if (
-                        nft.attributes[cheese_index].value === "2cheeze"
-                      ) {
-                        cheese = 2;
-                      } else if (
-                        nft.attributes[cheese_index].value === "3cheeze"
-                      ) {
-                        cheese = 3;
-                      }
                       return (
-                        <div
-                          key={nft.id.toString() || Math.random()}
-                          className="card w-72 m-4 card-bordered card-compact lg:card-normal shadow-xl bg-primary-content text"
-                        >
-                          <figure>
-                            <img
-                              src={`${nft.image}`}
-                              alt="rat bastard nft image"
-                            />
-                          </figure>
-                          <div className="card-body">
-                            <h2 className="card-title">{nft.name}</h2>
-                            <p>Cheese Rank: {cheese}</p>
-                            <p className="pt-2">Lockup period(days)</p>
-                            <div className="btn-group grid grid-cols-3 content-center">
-                              <input
-                                type="radio"
-                                name={`options ${nft.id.toString()}`}
-                                id="option1"
-                                data-title="10"
-                                defaultChecked
-                                onChange={(e) => {
-                                  setLockup(1);
-                                  e.target.checked = true;
-                                }}
-                                className="btn bg-neutral-focus"
-                              />
-                              <input
-                                type="radio"
-                                name={`options ${nft.id.toString()}`}
-                                id="option2"
-                                data-title="20"
-                                onChange={(e) => {
-                                  setLockup(2);
-                                  e.target.checked = true;
-                                }}
-                                className="btn bg-neutral-focus"
-                              />
-                              <input
-                                type="radio"
-                                name={`options ${nft.id.toString()}`}
-                                id="option3"
-                                data-title="30"
-                                onChange={(e) => {
-                                  setLockup(3);
-                                  e.target.checked = true;
-                                }}
-                                className="btn bg-neutral-focus"
-                              />
-                            </div>
-                            <button
-                              className="btn btn-primary mt-4"
-                              onClick={async () => {
-                                // console.log(nft.mint, cheese, lockup);
-                                await stakeNFT(nft.mint, cheese, lockup);
-                                setRefreshStateCounter(refreshStateCounter + 1);
-                              }}
-                            >
-                              Stake
-                            </button>
-                          </div>
-                        </div>
+                        <NFTLoader
+                          key={nft.id}
+                          isStaked={false}
+                          nft={nft}
+                          onStake={async (cheese, lockup) => {
+                            // console.log(
+                            //   "mint, cheese, lockup: ",
+                            //   nft.mint,
+                            //   cheese,
+                            //   lockup
+                            // );
+                            await stakeNFT(nft.mint, cheese, lockup);
+                            setRefreshStateCounter(refreshStateCounter + 1);
+                          }}
+                        />
                       );
                     })}
                   </div>
