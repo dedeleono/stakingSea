@@ -476,7 +476,7 @@ const Home: NextPage = () => {
               {/* Navbar Section */}
               <div className="navbar mb-8 shadow-lg bg-neutral text-neutral-content rounded-box">
                 <div className="px-2 mx-2 navbar-start">
-                  <span className="text-lg font-bold">Rat Bastards</span>
+                  <span className="text-lg font-bold">Cheese Factory</span>
                 </div>
                 <div className="hidden px-2 mx-2 navbar-center sm:flex">
                   <div className="flex items-stretch">
@@ -514,7 +514,7 @@ const Home: NextPage = () => {
               </div>
               <div className="border mockup-window border-base-300 mb-8">
                 {/* begin app windows */}
-                <div className="flex justify-center border-t border-base-300">
+                <div className="flex justify-center px-4 py-16 border-t border-base-300">
                   {loadingStakes && wallet.connected && (
                     <h1 className="text-lg font-bold animate-pulse">
                       Loading your Staked NFT&apos;s, please wait...
