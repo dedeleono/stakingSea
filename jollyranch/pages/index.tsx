@@ -311,24 +311,24 @@ const Home: NextPage = () => {
           nft.nft_account.account.amountOwed.toNumber() * percentage -
           nft.nft_account.account.amountRedeemed.toNumber();
         stakingRewards[nft.nft_account.id.toString()] =
-          estimateRewards.toFixed(6);
+          estimateRewards.toFixed(4);
       });
       setStakingRewards({ ...stakingRewards });
-      setInterval(() => {
-        allStakedMints.map((nft) => {
-          let percentage =
-            (new Date().getTime() / 1000 -
-              parseInt(nft.nft_account.account.startDate)) /
-            (parseInt(nft.nft_account.account.endDate) -
-              parseInt(nft.nft_account.account.startDate));
-          let estimateRewards =
-            nft.nft_account.account.amountOwed.toNumber() * percentage -
-            nft.nft_account.account.amountRedeemed.toNumber();
-          stakingRewards[nft.nft_account.id.toString()] =
-            estimateRewards.toFixed(6);
-        });
-        setStakingRewards({ ...stakingRewards });
-      }, 3000);
+      // setInterval(() => {
+      //   allStakedMints.map((nft) => {
+      //     let percentage =
+      //       (new Date().getTime() / 1000 -
+      //         parseInt(nft.nft_account.account.startDate)) /
+      //       (parseInt(nft.nft_account.account.endDate) -
+      //         parseInt(nft.nft_account.account.startDate));
+      //     let estimateRewards =
+      //       nft.nft_account.account.amountOwed.toNumber() * percentage -
+      //       nft.nft_account.account.amountRedeemed.toNumber();
+      //     stakingRewards[nft.nft_account.id.toString()] =
+      //       estimateRewards.toFixed(4);
+      //   });
+      //   setStakingRewards({ ...stakingRewards });
+      // }, 3000);
 
       setLoadingStakes(false);
       setStakedMints(allStakedMints);
@@ -579,12 +579,12 @@ const Home: NextPage = () => {
                                 <p className="badge badge-outline bg-primary">
                                   {stakingRewards[
                                     nft.nft_account.id.toString()
-                                  ] > 0
+                                  ] > -1
                                     ? (
                                         stakingRewards[
                                           nft.nft_account.id.toString()
                                         ] / 1000
-                                      ).toFixed(6) + " $CHEEZE"
+                                      ).toFixed(4) + " $CHEEZE"
                                     : "Loading..."}
                                 </p>
                               </div>
