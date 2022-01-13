@@ -435,7 +435,7 @@ const Home: NextPage = () => {
   }, [wallet, refreshStateCounter]);
 
   useEffect(() => {
-    console.log("react nft state changed");
+    // console.log("react nft state changed");
     if (jollyState["program"]) {
       getStakedNfts();
     }
@@ -640,10 +640,7 @@ const Home: NextPage = () => {
                       }
                       return (
                         <div
-                          key={
-                            nft.nft_account.publicKey.toString() ||
-                            Math.random()
-                          }
+                          key={nft.id.toString() || Math.random()}
                           className="card w-72 m-4 card-bordered card-compact lg:card-normal shadow-xl bg-primary-content text"
                         >
                           <figure>
@@ -659,7 +656,7 @@ const Home: NextPage = () => {
                             <div className="btn-group grid grid-cols-3 content-center">
                               <input
                                 type="radio"
-                                name={`options ${nft.nft_account.publicKey.toString()}`}
+                                name={`options ${nft.id.toString()}`}
                                 id="option1"
                                 data-title="10"
                                 defaultChecked
@@ -671,7 +668,7 @@ const Home: NextPage = () => {
                               />
                               <input
                                 type="radio"
-                                name={`options ${nft.nft_account.publicKey.toString()}`}
+                                name={`options ${nft.id.toString()}`}
                                 id="option2"
                                 data-title="20"
                                 onChange={(e) => {
@@ -682,7 +679,7 @@ const Home: NextPage = () => {
                               />
                               <input
                                 type="radio"
-                                name={`options ${nft.nft_account.publicKey.toString()}`}
+                                name={`options ${nft.id.toString()}`}
                                 id="option3"
                                 data-title="30"
                                 onChange={(e) => {
