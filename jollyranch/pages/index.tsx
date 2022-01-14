@@ -10,18 +10,13 @@ import {
 
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useWallet } from "@solana/wallet-adapter-react";
-import useWalletNfts from "../hooks/useWalletNfts";
-
 import idl_type from "../lib/nft_staker.json";
-
-import axios from "axios";
-
-import { useRouter } from "next/router";
-
+import { getNftsForOwner } from "../lib/mint-one-token";
 import { programs } from "@metaplex/js";
 import NFTLoader from "../components/NFTLoader";
 const {
@@ -41,21 +36,42 @@ type jollyProgramState = {
 };
 
 const Home: NextPage = () => {
-  const router = useRouter();
-  const refreshData = () => router.replace(router.asPath);
   const wallet = useWallet();
-  const [isLoading, nfts]: any = useWalletNfts();
   const [jollyState, setJollyState] = useState({} as jollyProgramState);
   const [stakedNFTs, setStakedNFTs] = useState([]);
   const [stakedMints, setStakedMints] = useState([]);
+  const [nfts, setNfts] = useState([]);
+  const [loadingNfts, setLoadingNfts] = useState(true);
   const [loadingStakes, setLoadingStakes] = useState(true);
   const [stakingRewards, setStakingRewards] = useState({});
   const [refreshStateCounter, setRefreshStateCounter] = useState(0);
   const [totalRatsStaked, setTotaRatsStaked] = useState(0);
 
+  const loaderRef = useRef(null);
+  const modalRef = useRef(null);
+  const [loader, setLoader] = useState(0);
+
+  const txTimeout = 5000;
+
+  const refresh = async () => {
+    loaderRef.current.click();
+    const downloadTimer = setInterval(() => {
+      if (loader >= 5000) {
+        clearInterval(downloadTimer);
+      }
+      setLoader((prevLoader) => prevLoader + 10);
+    }, 10);
+    setTimeout(() => {
+      modalRef.current.click();
+      // forceUpdate();
+      setRefreshStateCounter(refreshStateCounter + 1);
+      // refreshData();
+    }, txTimeout + 10);
+  };
+
   const idl = idl_type as anchor.Idl;
 
-  const stakeNFT = async (publicKey, cheese, lockup) => {
+  const stakeNFT = async (publicKey) => {
     const nft = new anchor.web3.PublicKey(publicKey);
     // console.log("nft", nft.toString());
     // console.log("cheese", cheese);
@@ -71,11 +87,10 @@ const Home: NextPage = () => {
       nft,
       wallet.publicKey
     );
-    await jollyState.program.rpc.stakeNft(stakeBump, lockup, cheese, {
+    await jollyState.program.rpc.stakeNft(stakeBump, {
       accounts: {
         authority: wallet.publicKey.toString(),
         stake: stake.publicKey.toString(),
-        jollyranch: jollyState.jollyranch.toString(),
         senderSplAccount: wallet_nft_account.toString(),
         recieverSplAccount: stake_spl.toString(),
         mint: nft.toString(),
@@ -85,41 +100,11 @@ const Home: NextPage = () => {
       },
       signers: [stake],
     });
-
-    // console.log(
-    //   "sender nft ending balance: ",
-    //   await jollyState.program.provider.connection.getTokenAccountBalance(
-    //     wallet_nft_account
-    //   )
-    // );
-    // // second time just return all my stakes
-    // const stakedNfts = await getStakedNfts();
-    // console.log("stakedNfts after staking one:", stakedNfts);
-    // setStakedNFTs(stakedNfts);
-    // stakedNfts.map((stake, index) => {
-    //   console.log("stake:", index);
-    //   console.log(
-    //     "stake.account.startDate",
-    //     new Date(stake.account.startDate.toNumber() * 1000)
-    //   );
-    //   console.log(
-    //     "stake.account.endDate",
-    //     new Date(stake.account.endDate.toNumber() * 1000)
-    //   );
-    //   console.log(
-    //     "stake.account.amountRedeemed",
-    //     stake.account.amountRedeemed.toString()
-    //   );
-    //   console.log(
-    //     "stake.account.amountOwed",
-    //     stake.account.amountOwed.toString()
-    //   );
-    // });
   };
 
   const setupJollyRanch = async () => {
     const opts = {
-      preflightCommitment: "recent" as ConfirmOptions,
+      preflightCommitment: "processed" as ConfirmOptions,
     };
     let endpoint = JSON.parse(
       process.env.NEXT_PUBLIC_QUICKNODE_MAINNET_BETA_RPC_ENDPOINT
@@ -132,12 +117,12 @@ const Home: NextPage = () => {
     );
 
     const provider = new Provider(connection, wallet, opts.preflightCommitment);
-    const ratbastards = new anchor.web3.PublicKey(
-      "2sKvVnq3rwQRay5WNDHhsMNEpNQAJ4G9o8JTN5WjUpxo"
+    const shillCityCapital = new anchor.web3.PublicKey(
+      "4i81fhenGRc5566CPQUEZaiG21ZMk93VyxuvWbjQ9DXc"
     );
-    // console.log("ratbastards", ratbastards);
-    // console.log("ratbastards", ratbastards.toString());
-    const program = new Program(idl, ratbastards.toString(), provider);
+    // console.log("shillCityCapital", shillCityCapital);
+    // console.log("shillCityCapital", shillCityCapital.toString());
+    const program = new Program(idl, shillCityCapital.toString(), provider);
     // console.log("program got ran", program);
     // default behavior new jollyranch each test
 
@@ -160,7 +145,7 @@ const Home: NextPage = () => {
 
     // use your own token here ex CHEESE
     const spl_token = new anchor.web3.PublicKey(
-      "3oePHsi4fhoyuLAjqXEgBUPB1cs4bP9A8cZpc1dATS9c"
+      "7RDibaGCRPSNBecU34AQPDioVYtgz1adYzPVaF4uryd9"
     );
 
     const [recieverSplAccount, splBump] =
@@ -212,6 +197,7 @@ const Home: NextPage = () => {
   };
 
   const getNftData = async (nft_public_key) => {
+    // console.log("nft_public_key", nft_public_key);
     const tokenAccount = new anchor.web3.PublicKey(nft_public_key);
     const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
       "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
@@ -238,16 +224,25 @@ const Home: NextPage = () => {
 
   const getStakedNfts = async () => {
     // console.log("jollyState program", jollyState.program);
+    let unWithdrawnNFTs = [];
     const newStakedNFTs = await jollyState.program.account.stake.all([
       {
         memcmp: {
           offset: 8, // Discriminator
-          bytes: bs58.encode(wallet.publicKey.toBuffer()),
+          // bytes: bs58.encode(wallet.publicKey.toBuffer()),
+          bytes: wallet.publicKey.toBase58(),
         },
       },
     ]);
-    // console.log("ran getStakedNfts", newStakedNFTs);
-    setStakedNFTs(newStakedNFTs);
+    // console.log("newStakedNFTs", newStakedNFTs);
+    await newStakedNFTs.map((stake) => {
+      if (stake.account.withdrawn === false) {
+        unWithdrawnNFTs.push(stake);
+      }
+    });
+    // console.log("setting newStakedNFTs to unWithdrawnNFTs", unWithdrawnNFTs);
+
+    setStakedNFTs(unWithdrawnNFTs);
     // console.log("stakedNfts on load:", stakedNfts);
     // return stakedNfts;
   };
@@ -255,7 +250,7 @@ const Home: NextPage = () => {
   const getStakedMints = async () => {
     // console.log("running getStakedMints with these nft accounts:", stakedNFTs);
     let allStakedMints = [];
-    Promise.all(
+    await Promise.all(
       stakedNFTs.map(async (nft_account, i) => {
         // console.log("nft_account", nft_account);
         let [stake_spl, _stakeBump] =
@@ -285,32 +280,32 @@ const Home: NextPage = () => {
           })
           .then(async (res) => {
             // console.log("res", res);
+            // console.log("res.data.result", res.data.result);
             // console.log(
-            //   "res-mint",
-            //   res.data.result.value.data.parsed.info.mint
+            //   "returned res data in getStakedMints:",
+            //   res.data.result.value.data.parsed
             // );
-            // console.log("returned res data in getStakedMints");
             return res.data.result.value?.data.parsed.info.mint;
           });
 
         // console.log("nft_public_key", nft_public_key);
-        let nft = await getNftData(nft_public_key);
-        nft["nft_account"] = nft_account;
-        nft["nft_account"].id = i;
-        // console.log("running pushed nft to mints", nft);
-        allStakedMints.push(nft);
+        if (nft_public_key) {
+          let nft = await getNftData(nft_public_key);
+          nft["nft_account"] = nft_account;
+          nft["nft_account"].id = i;
+          // console.log("running pushed nft to mints", nft);
+          allStakedMints.push(nft);
+        }
       })
     ).then(() => {
       // console.log("setStakedMints", allStakedMints);
       allStakedMints.map((nft) => {
-        let percentage =
-          (new Date().getTime() / 1000 -
-            parseInt(nft.nft_account.account.startDate)) /
-          (parseInt(nft.nft_account.account.endDate) -
-            parseInt(nft.nft_account.account.startDate));
-        let estimateRewards =
-          nft.nft_account.account.amountOwed.toNumber() * percentage -
-          nft.nft_account.account.amountRedeemed.toNumber();
+        let currDate = new Date().getTime() / 1000;
+        let redemption_rate = 6.9;
+        let daysElapsed =
+          Math.abs(currDate - nft.nft_account.account.startDate) /
+          (60 * 60 * 24);
+        let estimateRewards = redemption_rate * daysElapsed * 1000;
         stakingRewards[nft.nft_account.id.toString()] = estimateRewards;
       });
       setStakingRewards({ ...stakingRewards });
@@ -329,31 +324,13 @@ const Home: NextPage = () => {
       //   });
       //   setStakingRewards({ ...stakingRewards });
       // }, 3000);
-
+      // console.log("setStakedMints", allStakedMints);
       setLoadingStakes(false);
       setStakedMints(allStakedMints);
     });
   };
 
   const redeemRewards = async (nftPubKey) => {
-    // console.log(
-    //   "sender token starting balance: ",
-    //   await jollyState.program.provider.connection.getTokenAccountBalance(
-    //     jollyState.wallet_token_account
-    //   )
-    // );
-    // get staked nfts
-    // const stakedNfts = await jollyState.program.account.stake.all([
-    //   {
-    //     memcmp: {
-    //       offset: 8, // Discriminator
-    //       bytes: bs58.encode(
-    //         jollyState.program.provider.wallet.publicKey.toBuffer()
-    //       ),
-    //     },
-    //   },
-    // ]);
-
     await jollyState.program.rpc.redeemRewards({
       accounts: {
         stake: nftPubKey.toString(),
@@ -373,42 +350,23 @@ const Home: NextPage = () => {
     // );
   };
 
-  const redeemNFT = async (nftPubKey) => {
+  const redeemNFT = async (stakePubKey, nftPubKey) => {
     let wallet_nft_account = await Token.getAssociatedTokenAddress(
       ASSOCIATED_TOKEN_PROGRAM_ID,
       TOKEN_PROGRAM_ID,
       nftPubKey,
       jollyState.program.provider.wallet.publicKey
     );
-    // console.log(
-    //   "sender nft starting balance: ",
-    //   await jollyState.program.provider.connection.getTokenAccountBalance(
-    //     wallet_nft_account
-    //   )
-    // );
-    // get staked nfts
-    // const stakedNfts = await jollyState.program.account.stake.all([
-    //   {
-    //     memcmp: {
-    //       offset: 8, // Discriminator
-    //       bytes: bs58.encode(
-    //         jollyState.program.provider.wallet.publicKey.toBuffer()
-    //       ),
-    //     },
-    //   },
-    // ]);
-
-    // console.log("stakedNfts", stakedNfts);
 
     let [stake_spl, _stakeBump] =
       await anchor.web3.PublicKey.findProgramAddress(
-        [nftPubKey.toBuffer()],
+        [stakePubKey.toBuffer()],
         jollyState.program.programId
       );
 
     await jollyState.program.rpc.redeemNft({
       accounts: {
-        stake: nftPubKey.toString(),
+        stake: stakePubKey.toString(),
         jollyranch: jollyState.jollyranch.toString(),
         authority: jollyState.program.provider.wallet.publicKey.toString(),
         senderSplAccount: stake_spl.toString(),
@@ -426,28 +384,53 @@ const Home: NextPage = () => {
   };
 
   const getTotalStakedRats = async () => {
-    const total = await jollyState.program.account.stake.all();
-    setTotaRatsStaked(total.length);
+    // console.log("runnning total staked rats");
+    let totalStillStaked = 0;
+    const totalStaked = await jollyState.program.account.stake.all();
+    // console.log("totalStaked", totalStaked);
+    // if (totalStaked[0]) {
+    //   console.log("totalStaked", totalStaked[0].account.authority.toString());
+    // }
+    await totalStaked.map((stake) => {
+      if (stake.account.withdrawn === false) {
+        totalStillStaked++;
+      }
+    });
+    setTotaRatsStaked(totalStillStaked);
   };
 
   useEffect(() => {
-    // console.log("state counter updated");
-    // let highestTimeoutId = setTimeout(";");
-    // for (let i = 0; i < highestTimeoutId; i++) {
-    //   clearTimeout(i);
-    // }
-    if (wallet.publicKey) {
-      setupJollyRanch();
-    }
-  }, [wallet, refreshStateCounter]);
+    console.log("state refreshed");
+    (async () => {
+      if (
+        !wallet ||
+        !wallet.publicKey ||
+        !wallet.signAllTransactions ||
+        !wallet.signTransaction
+      ) {
+        return;
+      }
+      await setupJollyRanch();
+    })();
+  }, [wallet]);
 
   useEffect(() => {
-    // console.log("react nft state changed");
+    // console.log("jollyState refreshed");
     if (jollyState["program"]) {
+      (async () => {
+        setLoadingNfts(true);
+        const nftsForOwner = await getNftsForOwner(
+          jollyState.connection,
+          wallet.publicKey
+        );
+        // console.log("nftsforowner", nftsForOwner);
+        setNfts(nftsForOwner as any);
+        setLoadingNfts(false);
+      })();
       getStakedNfts();
       getTotalStakedRats();
     }
-  }, [jollyState]);
+  }, [jollyState, refreshStateCounter]);
 
   useEffect(() => {
     if (stakedNFTs.length > 0) {
@@ -461,7 +444,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Cheese Factory</title>
+        <title>Shill City Capital</title>
         <meta
           name="description"
           content="An nft staking platform for Rat Bastards"
@@ -471,22 +454,46 @@ const Home: NextPage = () => {
 
       <main>
         <div className="grid grid-cols-1 min-h-screen bg-neutral-focus text-neutral-content p-16">
+          {/* Loading Modal */}
+          <a href="#loader" className="btn btn-primary hidden" ref={loaderRef}>
+            open loader
+          </a>
+          <div id="loader" className="modal">
+            <div className="modal-box stat">
+              <div className="stat-figure text-primary">
+                <button className="btn loading btn-circle btn-lg bg-base-200 btn-ghost"></button>
+              </div>
+              <p>Loading...</p>
+              <div className="stat-desc max-w-[90%]">
+                <progress
+                  value={loader}
+                  max="5000"
+                  className="progress progress-secondary"
+                ></progress>
+              </div>
+              <a href="#" className="btn hidden" ref={modalRef}>
+                Close
+              </a>
+            </div>
+          </div>
           <div className="text-center col-span-1">
             <div className="grid-cols-3">
               {/* Navbar Section */}
               <div className="navbar mb-8 shadow-lg bg-neutral text-neutral-content rounded-box">
                 <div className="px-2 mx-2 navbar-start">
-                  <span className="text-lg font-bold">Cheese Factory</span>
+                  <span className="text-lg font-bold">Shill City Capital</span>
                 </div>
                 <div className="hidden px-2 mx-2 navbar-center sm:flex">
                   <div className="flex items-stretch">
                     {wallet.publicKey && (
                       <div className="w-full mt-2 border stats border-base-300 m-2.5">
-                        <div className="stat">
-                          <div className="stat-value">
-                            {totalRatsStaked.toLocaleString("en-US")}/3,369
+                        <div className="stat bg-base-300">
+                          <div className="stat-value text-white">
+                            {totalRatsStaked.toLocaleString("en-US")}/17
                           </div>
-                          <div className="stat-title">Rats Staked</div>
+                          <div className="stat-title text-white">
+                            Shanties Staked
+                          </div>
                         </div>
                       </div>
                     )}
@@ -517,6 +524,7 @@ const Home: NextPage = () => {
                   {stakedMints.length > 0 && !loadingStakes && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                       {stakedMints.map((nft, i) => {
+                        // console.log("mint nft", nft);
                         return (
                           <NFTLoader
                             key={i}
@@ -525,11 +533,14 @@ const Home: NextPage = () => {
                             stakingRewards={stakingRewards}
                             onRedeem={async () => {
                               await redeemRewards(nft.nft_account.publicKey);
-                              setRefreshStateCounter(refreshStateCounter + 1);
+                              await refresh();
                             }}
                             unStake={async () => {
-                              await redeemNFT(nft.nft_account.publicKey);
-                              setRefreshStateCounter(refreshStateCounter + 1);
+                              await redeemNFT(
+                                nft.nft_account.publicKey,
+                                nft.nft_account.account.mint
+                              );
+                              await refresh();
                             }}
                           />
                         );
@@ -540,7 +551,7 @@ const Home: NextPage = () => {
                     !loadingStakes &&
                     wallet.publicKey && (
                       <p className="text-lg font-bold">
-                        You don't have any ratbastards staked.
+                        You don't have any shanties staked.
                       </p>
                     )}
                 </div>
@@ -549,36 +560,36 @@ const Home: NextPage = () => {
               <div className="border mockup-window border-base-300 mb-8">
                 <div className="flex justify-center px-2 py-4 border-t border-base-300">
                   <div>
-                    {isLoading && (
+                    {loadingNfts && (
                       <h1 className="text-lg font-bold animate-pulse">
                         Loading your NFT&apos;s, please wait...
                       </h1>
                     )}
-                    {!isLoading && !wallet.connected && (
+                    {!loadingNfts && !wallet.connected && (
                       <p>please connect your wallet above</p>
                     )}
-                    {!isLoading && wallet.connected && nfts.length === 0 && (
+                    {!loadingNfts && wallet.connected && nfts.length === 0 && (
                       <h1 className="text-lg font-bold">
-                        You don't have any ratbastards in your wallet.
+                        You don't have any shanties in your wallet.
                       </h1>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {nfts.map((nft) => {
                       return (
                         <NFTLoader
                           key={nft.id}
                           isStaked={false}
                           nft={nft}
-                          onStake={async (cheese, lockup) => {
+                          onStake={async () => {
                             // console.log(
                             //   "mint, cheese, lockup: ",
                             //   nft.mint,
                             //   cheese,
                             //   lockup
                             // );
-                            await stakeNFT(nft.mint, cheese, lockup);
-                            setRefreshStateCounter(refreshStateCounter + 1);
+                            await stakeNFT(nft.mint);
+                            await refresh();
                           }}
                         />
                       );

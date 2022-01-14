@@ -19,7 +19,8 @@ if (process.env.NEXT_PUBLIC_SELECTED_ENDPOINT == "quicknode-devnet") {
 
 const connection = new web3.Connection(rpcHost);
 
-const useWalletNfts = () => {
+const useWalletNfts = (refresh) => {
+  console.log("useWalletNfts ran");
   const wallet = useWallet();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -43,7 +44,7 @@ const useWalletNfts = () => {
       setNfts(nftsForOwner as any);
       setIsLoading(false);
     })();
-  }, [wallet]);
+  }, [wallet, refresh]);
 
   return [isLoading, nfts];
 };

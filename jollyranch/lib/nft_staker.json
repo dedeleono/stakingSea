@@ -107,11 +107,6 @@
           "isSigner": true
         },
         {
-          "name": "jollyranch",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "senderSplAccount",
           "isMut": true,
           "isSigner": false
@@ -145,14 +140,6 @@
       "args": [
         {
           "name": "splBump",
-          "type": "u8"
-        },
-        {
-          "name": "lockup",
-          "type": "u8"
-        },
-        {
-          "name": "rarity",
           "type": "u8"
         }
       ]
@@ -279,6 +266,10 @@
             "type": "publicKey"
           },
           {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
             "name": "splBump",
             "type": "u8"
           },
@@ -329,6 +320,6 @@
     }
   ],
   "metadata": {
-    "address": "2sKvVnq3rwQRay5WNDHhsMNEpNQAJ4G9o8JTN5WjUpxo"
+    "address": "4i81fhenGRc5566CPQUEZaiG21ZMk93VyxuvWbjQ9DXc"
   }
 }
