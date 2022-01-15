@@ -64,16 +64,30 @@ pub mod nft_staker {
 
     pub fn redeem_rewards(ctx: Context<RedeemRewards>) -> ProgramResult {
         let stake = &mut ctx.accounts.stake;
+        let jollyranch = &mut ctx.accounts.jollyranch;
+
+        if jollyranch.amount_redeemed >= jollyranch.amount {
+            return Err(ErrorCode::OutOfFunds.into());
+        }
+
         let clock_unix = Clock::get().unwrap().unix_timestamp;
         // redemption rate for a token with 9 decimals
-        let redemption_rate = (6.9 * 1e9) as u64;
-        let days_elapsed = ((clock_unix - stake.start_date).abs()) / (60 * 60 * 24);
-        let amount_to_redeem = redemption_rate * days_elapsed as u64;
-        msg!("days elapsed {}", days_elapsed);
-        msg!("Amount in token to redeem {}", amount_to_redeem);
-        stake.amount_redeemed += amount_to_redeem;
-        let jollyranch = &mut ctx.accounts.jollyranch;
-        jollyranch.amount_redeemed += amount_to_redeem;
+        let redemption_rate = 6.9;
+        // msg!("redemption_rate {}", redemption_rate);
+        // msg!("clock_unix {}", clock_unix);
+        // msg!("stake.start_date {}", stake.start_date);
+        let day_dif = (clock_unix - stake.start_date).abs() as f64;
+        // msg!("day_dif {}", day_dif);
+        let to_days = 60.0 * 60.0 * 24.0;
+        // msg!("to_days {}", to_days);
+        let days_elapsed: f64 = day_dif / to_days;
+        // msg!("days elapsed {}", days_elapsed);
+        let amount_to_redeem = redemption_rate * days_elapsed;
+        // msg!("Amount in token to redeem {}", amount_to_redeem);
+        let typed_amount = ((amount_to_redeem * 1e9) as u64) - stake.amount_redeemed;
+        // msg!("typed_amount {}", typed_amount);
+        stake.amount_redeemed += typed_amount;
+        jollyranch.amount_redeemed += typed_amount;
         // new hotness is borken
         // token::transfer(ctx.accounts.transfer_ctx(), amount_to_redeem)?;
         // ol reliable?
@@ -90,13 +104,55 @@ pub mod nft_staker {
                     &[ctx.accounts.jollyranch.spl_bump],
                 ]],
             ),
-            amount_to_redeem,
+            typed_amount,
         )?;
         Ok(())
     }
 
     pub fn redeem_nft(ctx: Context<RedeemNFT>) -> ProgramResult {
         let stake = &mut ctx.accounts.stake;
+        let jollyranch = &mut ctx.accounts.jollyranch;
+
+        if jollyranch.amount_redeemed >= jollyranch.amount {
+            return Err(ErrorCode::OutOfFunds.into());
+        }
+
+        let clock_unix = Clock::get().unwrap().unix_timestamp;
+        // redemption rate for a token with 9 decimals
+        let redemption_rate = 6.9;
+        // msg!("redemption_rate {}", redemption_rate);
+        // msg!("clock_unix {}", clock_unix);
+        // msg!("stake.start_date {}", stake.start_date);
+        let day_dif = (clock_unix - stake.start_date).abs() as f64;
+        // msg!("day_dif {}", day_dif);
+        let to_days = 60.0 * 60.0 * 24.0;
+        // msg!("to_days {}", to_days);
+        let days_elapsed: f64 = day_dif / to_days;
+        // msg!("days elapsed {}", days_elapsed);
+        let amount_to_redeem = redemption_rate * days_elapsed;
+        // msg!("Amount in token to redeem {}", amount_to_redeem);
+        let typed_amount = ((amount_to_redeem * 1e9) as u64) - stake.amount_redeemed;
+        // msg!("typed_amount {}", typed_amount);
+        stake.amount_redeemed += typed_amount;
+        jollyranch.amount_redeemed += typed_amount;
+        // new hotness is borken
+        // token::transfer(ctx.accounts.transfer_ctx(), amount_to_redeem)?;
+        // ol reliable?
+        anchor_spl::token::transfer(
+            CpiContext::new_with_signer(
+                ctx.accounts.token_program.to_account_info(),
+                anchor_spl::token::Transfer {
+                    from: ctx.accounts.sender_triton_account.to_account_info(),
+                    to: ctx.accounts.reciever_triton_account.to_account_info(),
+                    authority: ctx.accounts.sender_triton_account.to_account_info(),
+                },
+                &[&[
+                    ctx.accounts.jollyranch.key().as_ref(),
+                    &[ctx.accounts.jollyranch.spl_bump],
+                ]],
+            ),
+            typed_amount,
+        )?;
         stake.withdrawn = true;
 
         // transfer back nft
@@ -227,6 +283,7 @@ pub struct RedeemRewards<'info> {
 pub struct RedeemNFT<'info> {
     #[account(mut, has_one = authority)]
     pub stake: Account<'info, Stake>,
+    #[account(mut)]
     pub jollyranch: Account<'info, JollyRanch>,
     pub authority: Signer<'info>,
     // spl_token specific validations
@@ -234,6 +291,11 @@ pub struct RedeemNFT<'info> {
     pub sender_spl_account: Account<'info, TokenAccount>,
     #[account(mut)]
     pub reciever_spl_account: Account<'info, TokenAccount>,
+    // extra accounts for leftover funds
+    #[account(mut, seeds = [jollyranch.key().as_ref()], bump = jollyranch.spl_bump)]
+    pub sender_triton_account: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub reciever_triton_account: Account<'info, TokenAccount>,
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
 }
@@ -302,4 +364,6 @@ pub enum ErrorCode {
     InvalidLockupPeriod,
     #[msg("Rarity invalid")]
     InvalidRarity,
+    #[msg("The staking contract is out of funds.")]
+    OutOfFunds,
 }

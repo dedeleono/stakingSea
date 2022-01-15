@@ -249,8 +249,7 @@ const Home: NextPage = () => {
 
   const getStakedMints = async () => {
     // console.log("running getStakedMints with these nft accounts:", stakedNFTs);
-    let allStakedMints = [];
-    await Promise.all(
+    let allStakedMints = await Promise.all(
       stakedNFTs.map(async (nft_account, i) => {
         // console.log("nft_account", nft_account);
         let [stake_spl, _stakeBump] =
@@ -294,40 +293,42 @@ const Home: NextPage = () => {
           nft["nft_account"] = nft_account;
           nft["nft_account"].id = i;
           // console.log("running pushed nft to mints", nft);
-          allStakedMints.push(nft);
+          // allStakedMints.push(nft);
+          return nft;
         }
       })
-    ).then(() => {
-      // console.log("setStakedMints", allStakedMints);
-      allStakedMints.map((nft) => {
-        let currDate = new Date().getTime() / 1000;
-        let redemption_rate = 6.9;
-        let daysElapsed =
-          Math.abs(currDate - nft.nft_account.account.startDate) /
-          (60 * 60 * 24);
-        let estimateRewards = redemption_rate * daysElapsed * 1000;
-        stakingRewards[nft.nft_account.id.toString()] = estimateRewards;
-      });
-      setStakingRewards({ ...stakingRewards });
-      // setInterval(() => {
-      //   allStakedMints.map((nft) => {
-      //     let percentage =
-      //       (new Date().getTime() / 1000 -
-      //         parseInt(nft.nft_account.account.startDate)) /
-      //       (parseInt(nft.nft_account.account.endDate) -
-      //         parseInt(nft.nft_account.account.startDate));
-      //     let estimateRewards =
-      //       nft.nft_account.account.amountOwed.toNumber() * percentage -
-      //       nft.nft_account.account.amountRedeemed.toNumber();
-      //     stakingRewards[nft.nft_account.id.toString()] =
-      //       estimateRewards;
-      //   });
-      //   setStakingRewards({ ...stakingRewards });
-      // }, 3000);
-      // console.log("setStakedMints", allStakedMints);
-      setLoadingStakes(false);
-      setStakedMints(allStakedMints);
+    );
+    // console.log("allStakedMints", allStakedMints);
+    allStakedMints.map((nft) => {
+      const currDate = new Date().getTime() / 1000;
+      const redemption_rate = 6.9;
+      const daysElapsed =
+        Math.abs(currDate - nft.nft_account.account.startDate) / (60 * 60 * 24);
+      const amountRedeemed =
+        nft.nft_account.account.amountRedeemed.toNumber() / 1e9;
+
+      let estimateRewards = redemption_rate * daysElapsed - amountRedeemed;
+      stakingRewards[nft.nft_account.id.toString()] = estimateRewards;
     });
+    setStakingRewards({ ...stakingRewards });
+    // setInterval(() => {
+    //   allStakedMints.map((nft) => {
+    //     let percentage =
+    //       (new Date().getTime() / 1000 -
+    //         parseInt(nft.nft_account.account.startDate)) /
+    //       (parseInt(nft.nft_account.account.endDate) -
+    //         parseInt(nft.nft_account.account.startDate));
+    //     let estimateRewards =
+    //       nft.nft_account.account.amountOwed.toNumber() * percentage -
+    //       nft.nft_account.account.amountRedeemed.toNumber();
+    //     stakingRewards[nft.nft_account.id.toString()] =
+    //       estimateRewards;
+    //   });
+    //   setStakingRewards({ ...stakingRewards });
+    // }, 3000);
+    // console.log("setStakedMints", allStakedMints);
+    setLoadingStakes(false);
+    setStakedMints(allStakedMints);
   };
 
   const redeemRewards = async (nftPubKey) => {
@@ -351,18 +352,22 @@ const Home: NextPage = () => {
   };
 
   const redeemNFT = async (stakePubKey, nftPubKey) => {
+    // console.log("stakesPubKey", stakePubKey.toString());
+    // console.log("nftPubKey", nftPubKey.toString());
     let wallet_nft_account = await Token.getAssociatedTokenAddress(
       ASSOCIATED_TOKEN_PROGRAM_ID,
       TOKEN_PROGRAM_ID,
       nftPubKey,
       jollyState.program.provider.wallet.publicKey
     );
-
+    // console.log("wallet_nft_account", wallet_nft_account.toString());
     let [stake_spl, _stakeBump] =
       await anchor.web3.PublicKey.findProgramAddress(
         [stakePubKey.toBuffer()],
         jollyState.program.programId
       );
+
+    // console.log("stake_spl", stake_spl.toString());
 
     await jollyState.program.rpc.redeemNft({
       accounts: {
@@ -371,16 +376,12 @@ const Home: NextPage = () => {
         authority: jollyState.program.provider.wallet.publicKey.toString(),
         senderSplAccount: stake_spl.toString(),
         recieverSplAccount: wallet_nft_account.toString(),
+        senderTritonAccount: jollyState.recieverSplAccount.toString(),
+        recieverTritonAccount: jollyState.wallet_token_account.toString(),
         tokenProgram: TOKEN_PROGRAM_ID.toString(),
         systemProgram: anchor.web3.SystemProgram.programId.toString(),
       },
     });
-    // console.log(
-    //   "sender nft ending balance: ",
-    //   await jollyState.program.provider.connection.getTokenAccountBalance(
-    //     wallet_nft_account
-    //   )
-    // );
   };
 
   const getTotalStakedRats = async () => {
@@ -400,7 +401,7 @@ const Home: NextPage = () => {
   };
 
   useEffect(() => {
-    console.log("state refreshed");
+    // console.log("state refreshed");
     (async () => {
       if (
         !wallet ||
@@ -427,15 +428,19 @@ const Home: NextPage = () => {
         setNfts(nftsForOwner as any);
         setLoadingNfts(false);
       })();
-      getStakedNfts();
-      getTotalStakedRats();
+      (async () => {
+        await getTotalStakedRats();
+        await getStakedNfts();
+      })();
     }
   }, [jollyState, refreshStateCounter]);
 
   useEffect(() => {
     if (stakedNFTs.length > 0) {
       setLoadingStakes(true);
-      getStakedMints();
+      (async () => {
+        await getStakedMints();
+      })();
     } else {
       setLoadingStakes(false);
     }

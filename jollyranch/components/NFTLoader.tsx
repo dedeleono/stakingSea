@@ -68,8 +68,7 @@ const NFTLoader: FC<NFTLoaderProps> = ({
             <p>Estimate Rewards</p>
             <p className="badge badge-outline bg-primary badge-sm text-xs">
               {stakingRewards[nft.nft_account.id.toString()] > -1
-                ? stakingRewards[nft.nft_account.id.toString()] / 1000 +
-                  " $TRTN"
+                ? stakingRewards[nft.nft_account.id.toString()] + " $TRTN"
                 : "Loading..."}
             </p>
           </div>

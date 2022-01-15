@@ -195,7 +195,7 @@
         },
         {
           "name": "jollyranch",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -210,6 +210,16 @@
         },
         {
           "name": "recieverSplAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "senderTritonAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "recieverTritonAccount",
           "isMut": true,
           "isSigner": false
         },
@@ -317,6 +327,11 @@
       "code": 6003,
       "name": "InvalidRarity",
       "msg": "Rarity invalid"
+    },
+    {
+      "code": 6004,
+      "name": "OutOfFunds",
+      "msg": "The staking contract is out of funds."
     }
   ],
   "metadata": {
