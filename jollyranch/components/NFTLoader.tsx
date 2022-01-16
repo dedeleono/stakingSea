@@ -49,9 +49,9 @@ const NFTLoader: FC<NFTLoaderProps> = ({
           <img src={`${nft.image}`} alt="sea shanties nft image" />
         </figure>
         <div className="card-body text-center items-center">
-          <h2 className="card-title">{nft.name}</h2>
-          <p>Started</p>
-          <p className="badge badge-outline bg-ghost badge-sm text-white">
+          <h2 className="card-title" style={{fontFamily: 'Jangkuy', fontSize: '1.2rem'}}>{nft.name}</h2>
+          <p style={{fontFamily: 'Montserrat', fontSize: '14px'}}>Started</p>
+          <p className="badge badge-outline bg-ghost badge-sm text-white" style={{fontFamily: 'Montserrat', fontSize: '10px'}}>
             {new Date(
               nft.nft_account.account.startDate * 1000
             ).toLocaleDateString("en-US", {
@@ -65,19 +65,19 @@ const NFTLoader: FC<NFTLoaderProps> = ({
           </p>
           <p className="mb-3"></p>
           <div className="">
-            <p>Estimate Rewards</p>
-            <p className="badge badge-outline bg-primary badge-sm text-xs">
+            <p style={{fontFamily: 'Montserrat'}}>Estimate Rewards</p>
+            <p className="badge bg-primary badge-sm text-xs font-bold" style={{fontFamily: 'Montserrat', color: '#ffffff'}}>
               {stakingRewards[nft.nft_account.id.toString()] > -1
                 ? stakingRewards[nft.nft_account.id.toString()] + " $TRTN"
                 : "Loading..."}
             </p>
           </div>
           <div className="justify-center card-actions">
-            <button className="btn btn-secondary" onClick={onRedeem}>
+            <button style={{fontFamily: 'Scratchy', fontSize: '1.3rem', color: '#ffffff'}} className="btn btn-secondary badge-outline" onClick={onRedeem}>
               redeem
             </button>
             {canWithdraw && (
-              <button className="btn btn-ghost" onClick={unStake}>
+              <button className="btn btn-ghost" onClick={unStake} style={{fontFamily: 'Scratchy', fontSize: '1.3rem'}}>
                 unstake
               </button>
             )}

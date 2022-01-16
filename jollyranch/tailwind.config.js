@@ -11,11 +11,11 @@ module.exports = {
     themes: [
       {
         TRITON: {
-          primary: '#ff9900',
+          primary: '#824047',
           "primary-focus": "#edc707",
           "primary-content": "#181830",
-          secondary: "#184746",
-          "secondary-focus": "#bf8b1d",
+          secondary: "#3DB489",
+          "secondary-focus": "#3DB489",
           "secondary-content": "#ffffff",
           accent: "#181830",
           "accent-focus": "#111122",
@@ -23,9 +23,9 @@ module.exports = {
           neutral: "#181830",
           "neutral-focus": "#111122",
           "neutral-content": "#ffffff",
-          "base-100": "#ffffff",
-          "base-200": "#f5f5f5",
-          "base-300": "#7e0f16",
+          "base-100": "#3DB489",
+          "base-200": "#ffffff",
+          "base-300": "#A134FE",
           "base-content": "#000000",
           info: "#2094f3",
           success: "#009485",
