@@ -512,6 +512,11 @@ const Home: NextPage = () => {
                         height: "100%",
                         width: "100%",
                         zIndex: "10",
+                        display: "flex",
+                        justifyContent: 'center',
+                        alignItems: "center",
+                        fontFamily: 'Montserrat',
+                        fontSize: '0.5rem',
                       }}
                     />
                   </div>

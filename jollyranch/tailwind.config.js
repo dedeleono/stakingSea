@@ -11,7 +11,7 @@ module.exports = {
     themes: [
       {
         TRITON: {
-          primary: "#01a27a",
+          primary: '#ff9900',
           "primary-focus": "#edc707",
           "primary-content": "#181830",
           secondary: "#184746",
