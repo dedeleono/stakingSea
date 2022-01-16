@@ -51,7 +51,7 @@ const Home: NextPage = () => {
   const modalRef = useRef(null);
   const [loader, setLoader] = useState(0);
 
-  const txTimeout = 5000;
+  const txTimeout = 6666;
 
   const refresh = async () => {
     loaderRef.current.click();
@@ -298,17 +298,20 @@ const Home: NextPage = () => {
         }
       })
     );
-    // console.log("allStakedMints", allStakedMints);
+    console.log("allStakedMints", allStakedMints);
     allStakedMints.map((nft) => {
-      const currDate = new Date().getTime() / 1000;
-      const redemption_rate = 6.9;
-      const daysElapsed =
-        Math.abs(currDate - nft.nft_account.account.startDate) / (60 * 60 * 24);
-      const amountRedeemed =
-        nft.nft_account.account.amountRedeemed.toNumber() / 1e9;
+      if (nft) {
+        const currDate = new Date().getTime() / 1000;
+        const redemption_rate = 6.9;
+        const daysElapsed =
+          Math.abs(currDate - nft.nft_account.account.startDate) /
+          (60 * 60 * 24);
+        const amountRedeemed =
+          nft.nft_account.account.amountRedeemed.toNumber() / 1e9;
 
-      let estimateRewards = redemption_rate * daysElapsed - amountRedeemed;
-      stakingRewards[nft.nft_account.id.toString()] = estimateRewards;
+        let estimateRewards = redemption_rate * daysElapsed - amountRedeemed;
+        stakingRewards[nft.nft_account.id.toString()] = estimateRewards;
+      }
     });
     setStakingRewards({ ...stakingRewards });
     // setInterval(() => {
@@ -513,10 +516,10 @@ const Home: NextPage = () => {
                         width: "100%",
                         zIndex: "10",
                         display: "flex",
-                        justifyContent: 'center',
+                        justifyContent: "center",
                         alignItems: "center",
-                        fontFamily: 'Montserrat',
-                        fontSize: '0.5rem',
+                        fontFamily: "Montserrat",
+                        fontSize: "0.5rem",
                       }}
                     />
                   </div>
