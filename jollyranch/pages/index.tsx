@@ -515,11 +515,7 @@ const Home: NextPage = () => {
                   </div>
                 </div>
                 <div className="navbar-end">
-<<<<<<< HEAD
-                  <div className="btn " style={{background: '#541CF6'}}>
-=======
-                  <div className="btn btn-primary z-50">
->>>>>>> 16b41b2a17e8842aff439ec86d73ac7e41f4f916
+                  <div className="btn btn-primary z-50" style={{color: '#fff'}}>
                     <WalletMultiButton
                       style={{
                         all: "unset",
@@ -529,13 +525,8 @@ const Home: NextPage = () => {
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-<<<<<<< HEAD
-                        fontFamily: 'Montserrat',
-                        fontSize: '0.7rem',
-=======
                         fontFamily: "Montserrat",
-                        fontSize: "0.5rem",
->>>>>>> 16b41b2a17e8842aff439ec86d73ac7e41f4f916
+                        fontSize: "0.8rem",
                       }}
                     />
                   </div>
@@ -589,23 +580,13 @@ const Home: NextPage = () => {
               <div className="border mockup-window border-base-200 mb-8">
                 <div className="flex justify-center px-2 py-4 border-t border-base-200">
                   <div>
-<<<<<<< HEAD
-                    {loadingNfts && (
+                    {loadingNfts && wallet.connected && (
                       <h1 className="text-lg font-bold animate-pulse" style={{fontFamily: 'Scratchy', fontSize: '2.5rem', color: '#D5D3D2'}}>
                         Loading your NFT&apos;s, please wait...
                       </h1>
                     )}
-                    {!loadingNfts && !wallet.connected && (
-                      <p style={{fontFamily: 'Scratchy', fontSize: '2.5rem', color: '#D5D3D2'}}>please connect your wallet above</p>
-=======
-                    {loadingNfts && wallet.connected && (
-                      <h1 className="text-lg font-bold animate-pulse">
-                        Loading your NFT&apos;s, please wait...
-                      </h1>
-                    )}
                     {!wallet.connected && (
-                      <p>please connect your wallet above</p>
->>>>>>> 16b41b2a17e8842aff439ec86d73ac7e41f4f916
+                      <p style={{fontFamily: 'Scratchy', fontSize: '2.5rem', color: '#D5D3D2'}}>please connect your wallet above</p>
                     )}
                     {!loadingNfts && wallet.connected && nfts.length === 0 && (
                       <h1 className="text-lg font-400" style={{fontFamily: 'Scratchy', fontSize: '2.5rem', color: '#D5D3D2'}}>
