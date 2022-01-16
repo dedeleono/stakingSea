@@ -468,7 +468,7 @@ const Home: NextPage = () => {
       </Head>
 
       <main>
-        <div style={{backgroundImage: `url(${Bg.src})`, objectFit: 'contain'}} className="grid grid-cols-1 min-h-screen bg-neutral-focus text-neutral-content p-16">
+        <div style={{backgroundImage: `url(${Bg.src})`, objectFit: 'contain', backgroundRepeat:'no-repeat'}} className="grid grid-cols-1 min-h-screen bg-neutral-focus text-neutral-content p-16">
           {/* Loading Modal */}
           <a href="#loader" className="btn btn-primary hidden" ref={loaderRef}>
             open loader
