@@ -54,7 +54,7 @@ const Home: NextPage = () => {
   const modalRef = useRef(null);
   const [loader, setLoader] = useState(0);
 
-  const txTimeout = 5000;
+  const txTimeout = 6666;
 
   const refresh = async () => {
     loaderRef.current.click();
@@ -301,17 +301,20 @@ const Home: NextPage = () => {
         }
       })
     );
-    // console.log("allStakedMints", allStakedMints);
+    console.log("allStakedMints", allStakedMints);
     allStakedMints.map((nft) => {
-      const currDate = new Date().getTime() / 1000;
-      const redemption_rate = 6.9;
-      const daysElapsed =
-        Math.abs(currDate - nft.nft_account.account.startDate) / (60 * 60 * 24);
-      const amountRedeemed =
-        nft.nft_account.account.amountRedeemed.toNumber() / 1e9;
+      if (nft) {
+        const currDate = new Date().getTime() / 1000;
+        const redemption_rate = 6.9;
+        const daysElapsed =
+          Math.abs(currDate - nft.nft_account.account.startDate) /
+          (60 * 60 * 24);
+        const amountRedeemed =
+          nft.nft_account.account.amountRedeemed.toNumber() / 1e9;
 
-      let estimateRewards = redemption_rate * daysElapsed - amountRedeemed;
-      stakingRewards[nft.nft_account.id.toString()] = estimateRewards;
+        let estimateRewards = redemption_rate * daysElapsed - amountRedeemed;
+        stakingRewards[nft.nft_account.id.toString()] = estimateRewards;
+      }
     });
     setStakingRewards({ ...stakingRewards });
     // setInterval(() => {
@@ -420,7 +423,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     // console.log("jollyState refreshed");
-    if (jollyState["program"]) {
+    if (jollyState["program"] && wallet.publicKey) {
       (async () => {
         setLoadingNfts(true);
         const nftsForOwner = await getNftsForOwner(
@@ -435,6 +438,10 @@ const Home: NextPage = () => {
         await getTotalStakedRats();
         await getStakedNfts();
       })();
+    } else {
+      setStakedNFTs([]);
+      setStakedMints([]);
+      setNfts([]);
     }
   }, [jollyState, refreshStateCounter]);
 
@@ -508,7 +515,11 @@ const Home: NextPage = () => {
                   </div>
                 </div>
                 <div className="navbar-end">
+<<<<<<< HEAD
                   <div className="btn " style={{background: '#541CF6'}}>
+=======
+                  <div className="btn btn-primary z-50">
+>>>>>>> 16b41b2a17e8842aff439ec86d73ac7e41f4f916
                     <WalletMultiButton
                       style={{
                         all: "unset",
@@ -516,10 +527,15 @@ const Home: NextPage = () => {
                         width: "100%",
                         zIndex: "10",
                         display: "flex",
-                        justifyContent: 'center',
+                        justifyContent: "center",
                         alignItems: "center",
+<<<<<<< HEAD
                         fontFamily: 'Montserrat',
                         fontSize: '0.7rem',
+=======
+                        fontFamily: "Montserrat",
+                        fontSize: "0.5rem",
+>>>>>>> 16b41b2a17e8842aff439ec86d73ac7e41f4f916
                       }}
                     />
                   </div>
@@ -573,6 +589,7 @@ const Home: NextPage = () => {
               <div className="border mockup-window border-base-200 mb-8">
                 <div className="flex justify-center px-2 py-4 border-t border-base-200">
                   <div>
+<<<<<<< HEAD
                     {loadingNfts && (
                       <h1 className="text-lg font-bold animate-pulse" style={{fontFamily: 'Scratchy', fontSize: '2.5rem', color: '#D5D3D2'}}>
                         Loading your NFT&apos;s, please wait...
@@ -580,6 +597,15 @@ const Home: NextPage = () => {
                     )}
                     {!loadingNfts && !wallet.connected && (
                       <p style={{fontFamily: 'Scratchy', fontSize: '2.5rem', color: '#D5D3D2'}}>please connect your wallet above</p>
+=======
+                    {loadingNfts && wallet.connected && (
+                      <h1 className="text-lg font-bold animate-pulse">
+                        Loading your NFT&apos;s, please wait...
+                      </h1>
+                    )}
+                    {!wallet.connected && (
+                      <p>please connect your wallet above</p>
+>>>>>>> 16b41b2a17e8842aff439ec86d73ac7e41f4f916
                     )}
                     {!loadingNfts && wallet.connected && nfts.length === 0 && (
                       <h1 className="text-lg font-400" style={{fontFamily: 'Scratchy', fontSize: '2.5rem', color: '#D5D3D2'}}>
