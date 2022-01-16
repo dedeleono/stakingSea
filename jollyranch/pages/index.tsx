@@ -420,7 +420,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     // console.log("jollyState refreshed");
-    if (jollyState["program"]) {
+    if (jollyState["program"] && wallet.publicKey) {
       (async () => {
         setLoadingNfts(true);
         const nftsForOwner = await getNftsForOwner(
@@ -435,6 +435,10 @@ const Home: NextPage = () => {
         await getTotalStakedRats();
         await getStakedNfts();
       })();
+    } else {
+      setStakedNFTs([]);
+      setStakedMints([]);
+      setNfts([]);
     }
   }, [jollyState, refreshStateCounter]);
 
@@ -508,7 +512,7 @@ const Home: NextPage = () => {
                   </div>
                 </div>
                 <div className="navbar-end">
-                  <div className="btn btn-primary">
+                  <div className="btn btn-primary z-50">
                     <WalletMultiButton
                       style={{
                         all: "unset",
@@ -573,12 +577,12 @@ const Home: NextPage = () => {
               <div className="border mockup-window border-base-300 mb-8">
                 <div className="flex justify-center px-2 py-4 border-t border-base-300">
                   <div>
-                    {loadingNfts && (
+                    {loadingNfts && wallet.connected && (
                       <h1 className="text-lg font-bold animate-pulse">
                         Loading your NFT&apos;s, please wait...
                       </h1>
                     )}
-                    {!loadingNfts && !wallet.connected && (
+                    {!wallet.connected && (
                       <p>please connect your wallet above</p>
                     )}
                     {!loadingNfts && wallet.connected && nfts.length === 0 && (
