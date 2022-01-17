@@ -21,6 +21,7 @@ import { programs } from "@metaplex/js";
 import NFTLoader from "../components/NFTLoader";
 import { url } from "inspector";
 import Bg from "../public/images/out.png";
+import { readBuilderProgram } from "typescript";
 
 const {
   metadata: { Metadata },
@@ -473,6 +474,8 @@ const Home: NextPage = () => {
             backgroundImage: `url(${Bg.src})`,
             objectFit: "contain",
             backgroundRepeat: "no-repeat",
+            backgroundAttachment: "fixed",
+            zIndex: '10',
           }}
           className="grid grid-cols-1 min-h-screen bg-neutral-focus text-neutral-content p-16"
         >
@@ -578,7 +581,7 @@ const Home: NextPage = () => {
                         color: "#D5D3D2",
                       }}
                     >
-                      please connect your wallet above
+                      Please connect your wallet above
                     </p>
                   )}
                   {stakedMints.length > 0 && !loadingStakes && (
@@ -647,7 +650,7 @@ const Home: NextPage = () => {
                           color: "#D5D3D2",
                         }}
                       >
-                        please connect your wallet above
+                        Please connect your wallet above
                       </p>
                     )}
                     {!loadingNfts && wallet.connected && nfts.length === 0 && (
