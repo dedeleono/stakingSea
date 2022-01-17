@@ -311,7 +311,7 @@ const Home: NextPage = () => {
           Math.abs(currDate - nft.nft_account.account.startDate) /
           (60 * 60 * 24);
         const amountRedeemed =
-          nft.nft_account.account.amountRedeemed.toNumber() / 1e9;
+          nft.nft_account.account.amountRedeemed.toNumber() / 1e6;
 
         let estimateRewards = redemption_rate * daysElapsed - amountRedeemed;
         stakingRewards[nft.nft_account.id.toString()] = estimateRewards;
@@ -475,7 +475,7 @@ const Home: NextPage = () => {
             objectFit: "contain",
             backgroundRepeat: "no-repeat",
             backgroundAttachment: "fixed",
-            zIndex: '10',
+            zIndex: "10",
           }}
           className="grid grid-cols-1 min-h-screen bg-neutral-focus text-neutral-content p-16"
         >

@@ -84,7 +84,7 @@ pub mod nft_staker {
         // msg!("days elapsed {}", days_elapsed);
         let amount_to_redeem = redemption_rate * days_elapsed;
         // msg!("Amount in token to redeem {}", amount_to_redeem);
-        let typed_amount = ((amount_to_redeem * 1e9) as u64) - stake.amount_redeemed;
+        let typed_amount = ((amount_to_redeem * 1e6) as u64) - stake.amount_redeemed;
         // msg!("typed_amount {}", typed_amount);
         stake.amount_redeemed += typed_amount;
         jollyranch.amount_redeemed += typed_amount;
@@ -131,7 +131,7 @@ pub mod nft_staker {
         // msg!("days elapsed {}", days_elapsed);
         let amount_to_redeem = redemption_rate * days_elapsed;
         // msg!("Amount in token to redeem {}", amount_to_redeem);
-        let typed_amount = ((amount_to_redeem * 1e9) as u64) - stake.amount_redeemed;
+        let typed_amount = ((amount_to_redeem * 1e6) as u64) - stake.amount_redeemed;
         // msg!("typed_amount {}", typed_amount);
         stake.amount_redeemed += typed_amount;
         jollyranch.amount_redeemed += typed_amount;
