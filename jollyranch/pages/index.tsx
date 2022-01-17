@@ -524,7 +524,7 @@ const Home: NextPage = () => {
                       <div className="w-full mt-2 border stats border-base-100 m-2.5">
                         <div className="stat bg-base-100">
                           <div className="stat-value text-white">
-                            {totalRatsStaked.toLocaleString("en-US")}/17
+                            {totalRatsStaked.toLocaleString("en-US")}/3333
                           </div>
                           <div
                             className="stat-title text-white"
