@@ -1,5 +1,4 @@
-import { FC, useState } from "react";
-import { isSetIterator } from "util/types";
+import { FC } from "react";
 
 interface NFTLoaderProps {
   nft: NFT;
@@ -26,20 +25,8 @@ const NFTLoader: FC<NFTLoaderProps> = ({
   unStake,
   stakingRewards,
 }) => {
-  // console.log("nftloader ran?");
-  const [lockup, setLockup] = useState(1);
-
+  // console.log("isStaked, nft", isStaked, nft);
   if (isStaked) {
-    // console.log("id", i);
-    // console.log("nft", nft);
-    // console.log(
-    //   "nft.nft_account.account.amountOwed.toNumber()",
-    //   nft.nft_account.account.amountOwed.toNumber()
-    // );
-    const canWithdraw =
-      Math.round(new Date().getTime() / 1000) -
-        nft.nft_account.account.endDate >=
-      0;
     return (
       <div
         key={nft.nft_account.id.toString() || Math.random()}
@@ -49,9 +36,17 @@ const NFTLoader: FC<NFTLoaderProps> = ({
           <img src={`${nft.image}`} alt="sea shanties nft image" />
         </figure>
         <div className="card-body text-center items-center">
-          <h2 className="card-title" style={{fontFamily: 'Jangkuy', fontSize: '1.2rem'}}>{nft.name}</h2>
-          <p style={{fontFamily: 'Montserrat', fontSize: '14px'}}>Started</p>
-          <p className="badge badge-outline bg-ghost badge-sm text-white" style={{fontFamily: 'Montserrat', fontSize: '10px'}}>
+          <h2
+            className="card-title"
+            style={{ fontFamily: "Jangkuy", fontSize: "1.2rem" }}
+          >
+            {nft.name}
+          </h2>
+          <p style={{ fontFamily: "Montserrat", fontSize: "14px" }}>Started</p>
+          <p
+            className="badge badge-outline bg-ghost badge-sm text-white"
+            style={{ fontFamily: "Montserrat", fontSize: "10px" }}
+          >
             {new Date(
               nft.nft_account.account.startDate * 1000
             ).toLocaleDateString("en-US", {
@@ -65,22 +60,36 @@ const NFTLoader: FC<NFTLoaderProps> = ({
           </p>
           <p className="mb-3"></p>
           <div className="">
-            <p style={{fontFamily: 'Montserrat'}}>Estimate Rewards</p>
-            <p className="badge badge-outline badge-sm text-xs font-bold" style={{fontFamily: 'Montserrat', color: '#f7752f'}}>
+            <p style={{ fontFamily: "Montserrat" }}>Estimate Rewards</p>
+            <p
+              className="badge badge-outline badge-sm text-xs font-bold"
+              style={{ fontFamily: "Montserrat", color: "#f7752f" }}
+            >
               {stakingRewards[nft.nft_account.id.toString()] > -1
                 ? stakingRewards[nft.nft_account.id.toString()] + " $TRTN"
                 : "Loading..."}
             </p>
           </div>
           <div className="justify-center card-actions">
-            <button style={{fontFamily: 'Scratchy', fontSize: '1.3rem', color: '#ffffff', borderColor: '#3DB489'}} className="btn btn-secondary badge-outline" onClick={onRedeem}>
+            <button
+              style={{
+                fontFamily: "Scratchy",
+                fontSize: "1.3rem",
+                color: "#ffffff",
+                borderColor: "#3DB489",
+              }}
+              className="btn btn-secondary badge-outline"
+              onClick={onRedeem}
+            >
               redeem
             </button>
-            {canWithdraw && (
-              <button className="btn btn-ghost" onClick={unStake} style={{fontFamily: 'Scratchy', fontSize: '1.3rem'}}>
-                unstake
-              </button>
-            )}
+            <button
+              className="btn btn-ghost"
+              onClick={unStake}
+              style={{ fontFamily: "Scratchy", fontSize: "1.3rem" }}
+            >
+              unstake
+            </button>
           </div>
         </div>
       </div>
@@ -96,8 +105,22 @@ const NFTLoader: FC<NFTLoaderProps> = ({
           <img src={`${nft.image}`} alt="sea shainties nft image" />
         </figure>
         <div className="card-body">
-          <h2 className="card-title" style={{fontFamily: 'Jangkuy', fontSize: '1.2rem'}}>{nft.name}</h2>
-          <button className="btn btn-secondary badge-outline mt-4" onClick={onStake} style={{fontFamily: 'Scratchy', fontSize: '1.3rem', color: '#ffffff', borderColor: '#3DB489'}}>
+          <h2
+            className="card-title"
+            style={{ fontFamily: "Jangkuy", fontSize: "1.2rem" }}
+          >
+            {nft.name}
+          </h2>
+          <button
+            className="btn btn-secondary badge-outline mt-4"
+            onClick={onStake}
+            style={{
+              fontFamily: "Scratchy",
+              fontSize: "1.3rem",
+              color: "#ffffff",
+              borderColor: "#3DB489",
+            }}
+          >
             Stake
           </button>
         </div>

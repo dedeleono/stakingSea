@@ -55,9 +55,10 @@ const Home: NextPage = () => {
   const modalRef = useRef(null);
   const [loader, setLoader] = useState(0);
 
-  const txTimeout = 6666;
+  const txTimeout = 10000;
 
   const refresh = async () => {
+    setLoader(0);
     loaderRef.current.click();
     const downloadTimer = setInterval(() => {
       if (loader >= 5000) {
@@ -291,7 +292,7 @@ const Home: NextPage = () => {
             return res.data.result.value?.data.parsed.info.mint;
           });
 
-        // console.log("nft_public_key", nft_public_key);
+        console.log("nft_public_key", nft_public_key);
         if (nft_public_key) {
           let nft = await getNftData(nft_public_key);
           nft["nft_account"] = nft_account;
@@ -312,7 +313,10 @@ const Home: NextPage = () => {
           (60 * 60 * 24);
         const amountRedeemed =
           nft.nft_account.account.amountRedeemed.toNumber() / 1e6;
-
+        // console.log(
+        //   "amountRedeemed",
+        //   nft.nft_account.account.amountRedeemed.toNumber() / 1e6
+        // );
         let estimateRewards = redemption_rate * daysElapsed - amountRedeemed;
         stakingRewards[nft.nft_account.id.toString()] = estimateRewards;
       }
@@ -335,7 +339,7 @@ const Home: NextPage = () => {
     // }, 3000);
     // console.log("setStakedMints", allStakedMints);
     setLoadingStakes(false);
-    setStakedMints(allStakedMints);
+    setStakedMints(allStakedMints.filter((e) => e));
   };
 
   const redeemRewards = async (nftPubKey) => {
@@ -440,8 +444,9 @@ const Home: NextPage = () => {
         await getStakedNfts();
       })();
     } else {
-      setStakedNFTs([]);
+      // console.log("reset jollyState");
       setStakedMints([]);
+      setStakedNFTs([]);
       setNfts([]);
     }
   }, [jollyState, refreshStateCounter]);
@@ -493,7 +498,7 @@ const Home: NextPage = () => {
                 <progress
                   value={loader}
                   max="5000"
-                  className="progress progress-secondary"
+                  className="progress progress-black"
                 ></progress>
               </div>
               <a
