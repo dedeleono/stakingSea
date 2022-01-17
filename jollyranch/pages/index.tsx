@@ -292,7 +292,7 @@ const Home: NextPage = () => {
             return res.data.result.value?.data.parsed.info.mint;
           });
 
-        console.log("nft_public_key", nft_public_key);
+        // console.log("nft_public_key", nft_public_key);
         if (nft_public_key) {
           let nft = await getNftData(nft_public_key);
           nft["nft_account"] = nft_account;
@@ -303,7 +303,7 @@ const Home: NextPage = () => {
         }
       })
     );
-    console.log("allStakedMints", allStakedMints);
+    // console.log("allStakedMints", allStakedMints);
     allStakedMints.map((nft) => {
       if (nft) {
         const currDate = new Date().getTime() / 1000;
