@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 
-declare_id!("4i81fhenGRc5566CPQUEZaiG21ZMk93VyxuvWbjQ9DXc");
+declare_id!("AH8QQSG2frNPYo9Ckqo9jzrPUixCQGJgL2jsApS3Kvkx");
 
 // Data Logics
 
@@ -356,14 +356,6 @@ impl Stake {
 // Error Codes
 #[error]
 pub enum ErrorCode {
-    #[msg("NFT can't be unlocked yet, not enough time has passed.")]
-    InvalidNftTime,
-    #[msg("NFT has already been un-staked")]
-    InvalidNftWithdrawl,
-    #[msg("Lockup period invalid")]
-    InvalidLockupPeriod,
-    #[msg("Rarity invalid")]
-    InvalidRarity,
     #[msg("The staking contract is out of funds.")]
     OutOfFunds,
 }

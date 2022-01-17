@@ -20,7 +20,7 @@ import { getNftsForOwner } from "../lib/mint-one-token";
 import { programs } from "@metaplex/js";
 import NFTLoader from "../components/NFTLoader";
 import { url } from "inspector";
-import Bg from '../public/images/out.png'
+import Bg from "../public/images/out.png";
 
 const {
   metadata: { Metadata },
@@ -121,7 +121,7 @@ const Home: NextPage = () => {
 
     const provider = new Provider(connection, wallet, opts.preflightCommitment);
     const shillCityCapital = new anchor.web3.PublicKey(
-      "4i81fhenGRc5566CPQUEZaiG21ZMk93VyxuvWbjQ9DXc"
+      "AH8QQSG2frNPYo9Ckqo9jzrPUixCQGJgL2jsApS3Kvkx"
     );
     // console.log("shillCityCapital", shillCityCapital);
     // console.log("shillCityCapital", shillCityCapital.toString());
@@ -148,7 +148,7 @@ const Home: NextPage = () => {
 
     // use your own token here ex CHEESE
     const spl_token = new anchor.web3.PublicKey(
-      "7RDibaGCRPSNBecU34AQPDioVYtgz1adYzPVaF4uryd9"
+      "8rDACnycUMGFvndX74ZM9sxjEbR3gUpVHDjDbL4qW6Zf"
     );
 
     const [recieverSplAccount, splBump] =
@@ -468,7 +468,14 @@ const Home: NextPage = () => {
       </Head>
 
       <main>
-        <div style={{backgroundImage: `url(${Bg.src})`, objectFit: 'contain', backgroundRepeat:'no-repeat'}} className="grid grid-cols-1 min-h-screen bg-neutral-focus text-neutral-content p-16">
+        <div
+          style={{
+            backgroundImage: `url(${Bg.src})`,
+            objectFit: "contain",
+            backgroundRepeat: "no-repeat",
+          }}
+          className="grid grid-cols-1 min-h-screen bg-neutral-focus text-neutral-content p-16"
+        >
           {/* Loading Modal */}
           <a href="#loader" className="btn btn-primary hidden" ref={loaderRef}>
             open loader
@@ -478,7 +485,7 @@ const Home: NextPage = () => {
               <div className="stat-figure text-primary">
                 <button className="btn loading btn-circle btn-lg bg-base-200 btn-ghost"></button>
               </div>
-              <p style={{fontFamily: 'Montserrat'}}>Loading...</p>
+              <p style={{ fontFamily: "Montserrat" }}>Loading...</p>
               <div className="stat-desc max-w-[90%]">
                 <progress
                   value={loader}
@@ -486,7 +493,12 @@ const Home: NextPage = () => {
                   className="progress progress-secondary"
                 ></progress>
               </div>
-              <a href="#" style={{fontFamily: 'Montserrat'}} className="btn hidden" ref={modalRef}>
+              <a
+                href="#"
+                style={{ fontFamily: "Montserrat" }}
+                className="btn hidden"
+                ref={modalRef}
+              >
                 Close
               </a>
             </div>
@@ -496,7 +508,12 @@ const Home: NextPage = () => {
               {/* Navbar Section */}
               <div className="navbar mb-8 shadow-lg bg-neutral text-neutral-content rounded-box">
                 <div className="px-2 mx-2 navbar-start">
-                  <span className="text-lg font-bold" style={{fontFamily: 'Jangkuy'}}>Shill City Capital</span>
+                  <span
+                    className="text-lg font-bold"
+                    style={{ fontFamily: "Jangkuy" }}
+                  >
+                    Shill City Capital
+                  </span>
                 </div>
                 <div className="hidden px-2 mx-2 navbar-center sm:flex">
                   <div className="flex items-stretch">
@@ -506,7 +523,10 @@ const Home: NextPage = () => {
                           <div className="stat-value text-white">
                             {totalRatsStaked.toLocaleString("en-US")}/17
                           </div>
-                          <div className="stat-title text-white" style={{fontFamily: 'Montserrat'}}>
+                          <div
+                            className="stat-title text-white"
+                            style={{ fontFamily: "Montserrat" }}
+                          >
                             Shanties Staked
                           </div>
                         </div>
@@ -515,7 +535,10 @@ const Home: NextPage = () => {
                   </div>
                 </div>
                 <div className="navbar-end">
-                  <div className="btn btn-primary z-50" style={{color: '#fff'}}>
+                  <div
+                    className="btn btn-primary z-50"
+                    style={{ color: "#fff" }}
+                  >
                     <WalletMultiButton
                       style={{
                         all: "unset",
@@ -536,11 +559,28 @@ const Home: NextPage = () => {
                 {/* begin app windows */}
                 <div className="flex justify-center px-2 py-4 border-t border-base-200">
                   {loadingStakes && wallet.connected && (
-                    <h1 className="text-lg font-400 animate-pulse" style={{fontFamily: 'Scratchy', fontSize: '2.5rem', color: '#D5D3D2'}}>
+                    <h1
+                      className="text-lg font-400 animate-pulse"
+                      style={{
+                        fontFamily: "Scratchy",
+                        fontSize: "2.5rem",
+                        color: "#D5D3D2",
+                      }}
+                    >
                       Loading your Staked NFT&apos;s, please wait...
                     </h1>
                   )}
-                  {!wallet.connected && <p style={{fontFamily: 'Scratchy', fontSize: '2.5rem', color: '#D5D3D2'}}>please connect your wallet above</p>}
+                  {!wallet.connected && (
+                    <p
+                      style={{
+                        fontFamily: "Scratchy",
+                        fontSize: "2.5rem",
+                        color: "#D5D3D2",
+                      }}
+                    >
+                      please connect your wallet above
+                    </p>
+                  )}
                   {stakedMints.length > 0 && !loadingStakes && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                       {stakedMints.map((nft, i) => {
@@ -570,7 +610,14 @@ const Home: NextPage = () => {
                   {stakedMints.length == 0 &&
                     !loadingStakes &&
                     wallet.publicKey && (
-                      <p className="text-lg font-400" style={{fontFamily: 'Scratchy', fontSize: '2.5rem', color: '#D5D3D2'}}>
+                      <p
+                        className="text-lg font-400"
+                        style={{
+                          fontFamily: "Scratchy",
+                          fontSize: "2.5rem",
+                          color: "#D5D3D2",
+                        }}
+                      >
                         You don't have any shanties staked
                       </p>
                     )}
@@ -581,15 +628,37 @@ const Home: NextPage = () => {
                 <div className="flex justify-center px-2 py-4 border-t border-base-200">
                   <div>
                     {loadingNfts && wallet.connected && (
-                      <h1 className="text-lg font-bold animate-pulse" style={{fontFamily: 'Scratchy', fontSize: '2.5rem', color: '#D5D3D2'}}>
+                      <h1
+                        className="text-lg font-bold animate-pulse"
+                        style={{
+                          fontFamily: "Scratchy",
+                          fontSize: "2.5rem",
+                          color: "#D5D3D2",
+                        }}
+                      >
                         Loading your NFT&apos;s, please wait...
                       </h1>
                     )}
                     {!wallet.connected && (
-                      <p style={{fontFamily: 'Scratchy', fontSize: '2.5rem', color: '#D5D3D2'}}>please connect your wallet above</p>
+                      <p
+                        style={{
+                          fontFamily: "Scratchy",
+                          fontSize: "2.5rem",
+                          color: "#D5D3D2",
+                        }}
+                      >
+                        please connect your wallet above
+                      </p>
                     )}
                     {!loadingNfts && wallet.connected && nfts.length === 0 && (
-                      <h1 className="text-lg font-400" style={{fontFamily: 'Scratchy', fontSize: '2.5rem', color: '#D5D3D2'}}>
+                      <h1
+                        className="text-lg font-400"
+                        style={{
+                          fontFamily: "Scratchy",
+                          fontSize: "2.5rem",
+                          color: "#D5D3D2",
+                        }}
+                      >
                         You don't have any shanties in your wallet
                       </h1>
                     )}

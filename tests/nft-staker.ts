@@ -33,7 +33,7 @@ describe("nft-staker", async () => {
 
   // use your own token here ex TRTN
   const spl_token = new PublicKey(
-    "7RDibaGCRPSNBecU34AQPDioVYtgz1adYzPVaF4uryd9"
+    "8rDACnycUMGFvndX74ZM9sxjEbR3gUpVHDjDbL4qW6Zf"
   );
 
   const [recieverSplAccount, splBump] =
@@ -61,17 +61,17 @@ describe("nft-staker", async () => {
 
   it("JollyRanch Created!", async () => {
     // only run this if it's the first time you're running the test
-    // await program.rpc.initialize(jollyBump, splBump, {
-    //   accounts: {
-    //     jollyranch: jollyranch,
-    //     authority: program.provider.wallet.publicKey,
-    //     recieverSplAccount: recieverSplAccount,
-    //     mint: spl_token,
-    //     systemProgram: anchor.web3.SystemProgram.programId,
-    //     tokenProgram: TOKEN_PROGRAM_ID,
-    //     rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-    //   },
-    // });
+    await program.rpc.initialize(jollyBump, splBump, {
+      accounts: {
+        jollyranch: jollyranch,
+        authority: program.provider.wallet.publicKey,
+        recieverSplAccount: recieverSplAccount,
+        mint: spl_token,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+      },
+    });
     jollyAccount = await program.account.jollyRanch.fetch(jollyranch);
     console.log("jollyAccount", jollyAccount);
     console.log("jollyAccount.amount", jollyAccount.amount.toString());
@@ -91,45 +91,45 @@ describe("nft-staker", async () => {
   });
 
   // fund the ranch
-  // it("JollyRanch Funded", async () => {
-  //   console.log(
-  //     "sender token starting balance: ",
-  //     await program.provider.connection.getTokenAccountBalance(
-  //       wallet_token_account
-  //     )
-  //   );
-  //   // console.log(
-  //   //   "receiver token balance: ",
-  //   //   await program.provider.connection.getTokenAccountBalance(
-  //   //     recieverSplAccount
-  //   //   )
-  //   // );
+  it("JollyRanch Funded", async () => {
+    console.log(
+      "sender token starting balance: ",
+      await program.provider.connection.getTokenAccountBalance(
+        wallet_token_account
+      )
+    );
+    // console.log(
+    //   "receiver token balance: ",
+    //   await program.provider.connection.getTokenAccountBalance(
+    //     recieverSplAccount
+    //   )
+    // );
 
-  //   let amount = new anchor.BN(500000 * 1e9);
-  //   // console.log("amount", amount.toString());
-  //   await program.rpc.fundRanch(amount, {
-  //     accounts: {
-  //       jollyranch: jollyranch,
-  //       authority: program.provider.wallet.publicKey,
-  //       senderSplAccount: wallet_token_account,
-  //       recieverSplAccount: recieverSplAccount,
-  //       tokenProgram: TOKEN_PROGRAM_ID,
-  //       systemProgram: anchor.web3.SystemProgram.programId,
-  //     },
-  //   });
-  //   console.log(
-  //     "sender token ending balance: ",
-  //     await program.provider.connection.getTokenAccountBalance(
-  //       wallet_token_account
-  //     )
-  //   );
-  //   console.log(
-  //     "receiver token balance: ",
-  //     await program.provider.connection.getTokenAccountBalance(
-  //       recieverSplAccount
-  //     )
-  //   );
-  // });
+    let amount = new anchor.BN(1000000 * 1e6);
+    // console.log("amount", amount.toString());
+    await program.rpc.fundRanch(amount, {
+      accounts: {
+        jollyranch: jollyranch,
+        authority: program.provider.wallet.publicKey,
+        senderSplAccount: wallet_token_account,
+        recieverSplAccount: recieverSplAccount,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      },
+    });
+    console.log(
+      "sender token ending balance: ",
+      await program.provider.connection.getTokenAccountBalance(
+        wallet_token_account
+      )
+    );
+    console.log(
+      "receiver token balance: ",
+      await program.provider.connection.getTokenAccountBalance(
+        recieverSplAccount
+      )
+    );
+  });
 
   // it("Unix time tests", async () => {
   //   let amount = new anchor.BN(1e9);
