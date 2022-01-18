@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 
 declare_id!("AH8QQSG2frNPYo9Ckqo9jzrPUixCQGJgL2jsApS3Kvkx");
@@ -273,10 +274,13 @@ pub struct RedeemRewards<'info> {
     // spl_token specific validations
     #[account(mut, seeds = [jollyranch.key().as_ref()], bump = jollyranch.spl_bump)]
     pub sender_spl_account: Account<'info, TokenAccount>,
-    #[account(mut)]
+    #[account(init_if_needed, payer = authority, associated_token::mint = mint, associated_token::authority = authority)]
     pub reciever_spl_account: Account<'info, TokenAccount>,
+    pub mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
+    pub rent: Sysvar<'info, Rent>,
 }
 
 #[derive(Accounts)]

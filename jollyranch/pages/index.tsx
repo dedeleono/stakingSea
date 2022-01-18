@@ -350,8 +350,11 @@ const Home: NextPage = () => {
         authority: jollyState.program.provider.wallet.publicKey.toString(),
         senderSplAccount: jollyState.recieverSplAccount.toString(),
         recieverSplAccount: jollyState.wallet_token_account.toString(),
-        tokenProgram: TOKEN_PROGRAM_ID.toString(),
+        mint: jollyState.spl_token.toString(),
         systemProgram: anchor.web3.SystemProgram.programId.toString(),
+        tokenProgram: TOKEN_PROGRAM_ID.toString(),
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID.toString(),
+        rent: anchor.web3.SYSVAR_RENT_PUBKEY.toString(),
       },
     });
     // console.log(
