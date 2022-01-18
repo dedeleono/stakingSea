@@ -11,3 +11,5 @@ Then run yarn dev
 Load that wallet to see staked nfts and stakeable nfts
 
 changed email
+
+Hashlist updated. 
