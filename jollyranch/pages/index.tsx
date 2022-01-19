@@ -566,7 +566,7 @@ const Home: NextPage = () => {
                       }}
                     />
                   </div>
-                  <a href="#fyi" style={{fontFamily: 'Montserrat'}} className=" btn-outline bg-[#c73636] text-white border-[#c73636] border-2 w-auto p-3 justify-center mx-[1rem] hover:bg-transparent hover:border-[#c73636] hover:text-[#c73636] text-xs rounded-[5px]">
+                  <a href="#fyi" style={{fontFamily: 'Montserrat'}} className=" btn-outline bg-[transparent] text-[#c73636] border-[#c73636] border-2 w-auto p-3 justify-center mx-[1rem] hover:bg-transparent hover:border-[#c73636] hover:bg-[#c73636] hover:text-white text-xs rounded-[5px]">
             My Shanties aren't showing
           </a>
                 </div>
