@@ -717,7 +717,7 @@ const Home: NextPage = () => {
                   </h4>
               </div>
               <div className="">
-                <p className="font-extralight text-sm py-4" style={{ fontFamily: "Montserrat", color: "white"}}>1. If you don't see your Shanties available for staking, don't worry. We're manually updating the hash list of mints (while mint is live). <br></br><br></br>2. If after staking you don't see your Shantie please keep refreshing and be patient, your Shantie should show up anytime soon! </p>
+                <p className="font-extralight text-sm py-4" style={{ fontFamily: "Montserrat", color: "white"}}>1. If after staking you don't see your Shantie please keep refreshing and be patient, your Shantie should show up anytime soon! </p>
               </div>
             </div>
           </div>
