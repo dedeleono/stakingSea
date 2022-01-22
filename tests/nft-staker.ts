@@ -59,36 +59,36 @@ describe("nft-staker", async () => {
 
   let jollyAccount;
 
-  // it("JollyRanch Created!", async () => {
-  //   // only run this if it's the first time you're running the test
-  //   await program.rpc.initialize(jollyBump, splBump, {
-  //     accounts: {
-  //       jollyranch: jollyranch,
-  //       authority: program.provider.wallet.publicKey,
-  //       recieverSplAccount: recieverSplAccount,
-  //       mint: spl_token,
-  //       systemProgram: anchor.web3.SystemProgram.programId,
-  //       tokenProgram: TOKEN_PROGRAM_ID,
-  //       rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-  //     },
-  //   });
-  //   jollyAccount = await program.account.jollyRanch.fetch(jollyranch);
-  //   console.log("jollyAccount", jollyAccount);
-  //   console.log("jollyAccount.amount", jollyAccount.amount.toString());
-  //   console.log(
-  //     "jollyAccount.amountRedeemed",
-  //     jollyAccount.amountRedeemed.toString()
-  //   );
-  //   assert.equal(
-  //     jollyAccount.authority.toBase58(),
-  //     program.provider.wallet.publicKey.toBase58()
-  //   );
-  //   // assert.equal(jollyAccount.amount.toString(), new anchor.BN(0).toString());
-  //   // assert.equal(
-  //   //   jollyAccount.amountRedeemed.toString(),
-  //   //   new anchor.BN(0).toString()
-  //   // );
-  // });
+  it("JollyRanch Created!", async () => {
+    // only run this if it's the first time you're running the test
+    await program.rpc.initialize(jollyBump, splBump, {
+      accounts: {
+        jollyranch: jollyranch,
+        authority: program.provider.wallet.publicKey,
+        recieverSplAccount: recieverSplAccount,
+        mint: spl_token,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+      },
+    });
+    jollyAccount = await program.account.jollyRanch.fetch(jollyranch);
+    console.log("jollyAccount", jollyAccount);
+    console.log("jollyAccount.amount", jollyAccount.amount.toString());
+    console.log(
+      "jollyAccount.amountRedeemed",
+      jollyAccount.amountRedeemed.toString()
+    );
+    assert.equal(
+      jollyAccount.authority.toBase58(),
+      program.provider.wallet.publicKey.toBase58()
+    );
+    // assert.equal(jollyAccount.amount.toString(), new anchor.BN(0).toString());
+    // assert.equal(
+    //   jollyAccount.amountRedeemed.toString(),
+    //   new anchor.BN(0).toString()
+    // );
+  });
 
   // fund the ranch
   // it("JollyRanch Funded", async () => {
@@ -357,11 +357,11 @@ describe("nft-staker", async () => {
   //       rent: anchor.web3.SYSVAR_RENT_PUBKEY,
   //     },
   //   });
-  //   console.log(
-  //     "sender nft ending balance: ",
-  //     await program.provider.connection.getTokenAccountBalance(
-  //       wallet_nft_account
-  //     )
-  //   );
+  // console.log(
+  //   "sender nft ending balance: ",
+  //   await program.provider.connection.getTokenAccountBalance(
+  //     wallet_nft_account
+  //   )
+  // );
   // });
 });

@@ -188,6 +188,16 @@ const Home: NextPage = () => {
     //   "jollyAccount amount redeemed",
     //   jollyAccount.amountRedeemed.toNumber()
     // );
+
+    // let stakedPubKeys = [];
+    // const newStakedNFTs = await program.account.stake.all([]);
+    // await newStakedNFTs.map((stake) => {
+    //   if (stake.account.withdrawn === false) {
+    //     stakedPubKeys.push(stake.account.authority.toString());
+    //   }
+    // });
+    // console.log("My pubKey", stakedPubKeys);
+
     setJollyState({
       program,
       connection,
