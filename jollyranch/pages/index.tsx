@@ -405,8 +405,11 @@ const Home: NextPage = () => {
         recieverSplAccount: wallet_nft_account.toString(),
         senderTritonAccount: jollyState.recieverSplAccount.toString(),
         recieverTritonAccount: jollyState.wallet_token_account.toString(),
-        tokenProgram: TOKEN_PROGRAM_ID.toString(),
+        mint: jollyState.spl_token.toString(),
         systemProgram: anchor.web3.SystemProgram.programId.toString(),
+        tokenProgram: TOKEN_PROGRAM_ID.toString(),
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID.toString(),
+        rent: anchor.web3.SYSVAR_RENT_PUBKEY.toString(),
       },
     });
   };
@@ -484,7 +487,7 @@ const Home: NextPage = () => {
         <title>Shill City Capital</title>
         <meta
           name="description"
-          content="An nft staking platform for Rat Bastards"
+          content="An nft staking platform for Sea Shanties"
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -498,7 +501,7 @@ const Home: NextPage = () => {
             backgroundAttachment: "fixed",
             zIndex: "10",
           }}
-          className="grid grid-cols-1 min-h-screen bg-neutral-focus text-neutral-content p-16"
+          className="grid grid-cols-1 min-h-screen bg-neutral-focus text-neutral-content p-16 bg-center"
         >
           {/* Loading Modal */}
           <a href="#loader" className="btn btn-primary hidden" ref={loaderRef}>
