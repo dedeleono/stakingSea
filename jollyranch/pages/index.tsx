@@ -188,16 +188,6 @@ const Home: NextPage = () => {
     //   "jollyAccount amount redeemed",
     //   jollyAccount.amountRedeemed.toNumber()
     // );
-
-    // let stakedPubKeys = [];
-    // const newStakedNFTs = await program.account.stake.all([]);
-    // await newStakedNFTs.map((stake) => {
-    //   if (stake.account.withdrawn === false) {
-    //     stakedPubKeys.push(stake.account.authority.toString());
-    //   }
-    // });
-    // console.log("My pubKey", stakedPubKeys);
-
     setJollyState({
       program,
       connection,
@@ -316,8 +306,21 @@ const Home: NextPage = () => {
     // console.log("allStakedMints", allStakedMints);
     allStakedMints.map((nft) => {
       if (nft) {
+        // console.log("nft", nft);
+        const mints = [
+          "9Gd3CpPFgK5PbfRnEuhF2JmDSUFEyWkHPkB7GA4SfSdA",
+          "APA8t9faSRNdZvB1opJvB5DQ8h3aeCFyNxZiaCMSArTZ",
+          "FrLGhta8fHTcyFTqiTDUwiDiG59L5xnvnqJwS2ssVXu7",
+          "662zoahSfHgZYjQ9bzcS8MzqRfsF2H1h549uZUebC4e6",
+          "Fs9SpcHN8J7PN8gjmp7Xvhae8EA4Zwifa79eNCQHJNgW",
+          "4j99GW37LGL1Er7otAsqRdWgNDt9srZguim9n4rFCoDj",
+        ];
+        let redemption_rate = 6.9;
+        // console.log("nft", nft.nft_account.account.mint.toString());
+        if (mints.includes(nft.nft_account.account.mint.toString())) {
+          redemption_rate = 16.9;
+        }
         const currDate = new Date().getTime() / 1000;
-        const redemption_rate = 6.9;
         const daysElapsed =
           Math.abs(currDate - nft.nft_account.account.startDate) /
           (60 * 60 * 24);
@@ -474,7 +477,6 @@ const Home: NextPage = () => {
       setLoadingStakes(false);
     }
   }, [stakedNFTs]);
-  
 
   return (
     <>
@@ -507,7 +509,7 @@ const Home: NextPage = () => {
               <div className="stat-figure text-primary">
                 <button className="btn loading btn-circle btn-lg bg-base-200 btn-ghost"></button>
               </div>
-              <p style={{ fontFamily: "Montserrat", color: "white"}}>Loading...</p>
+              <p style={{ fontFamily: "Montserrat" }}>Loading...</p>
               <div className="stat-desc max-w-[90%]">
                 <progress
                   value={loader}
@@ -525,7 +527,6 @@ const Home: NextPage = () => {
               </a>
             </div>
           </div>
-
           <div className="text-center col-span-1">
             <div className="grid-cols-3">
               {/* Navbar Section */}
@@ -544,7 +545,7 @@ const Home: NextPage = () => {
                       <div className="w-full mt-2 border stats border-base-100 m-2.5">
                         <div className="stat bg-base-100">
                           <div className="stat-value text-white">
-                            {totalRatsStaked.toLocaleString("en-US")}/3,333
+                            {totalRatsStaked.toLocaleString("en-US")}/3333
                           </div>
                           <div
                             className="stat-title text-white"
@@ -576,9 +577,6 @@ const Home: NextPage = () => {
                       }}
                     />
                   </div>
-                  <a href="#fyi" style={{fontFamily: 'Montserrat', fontSize:'0.9rem'}} className=" btn-outline bg-[transparent] text-[#c73636] border-[#c73636] border-2 w-auto p-3 justify-center mx-[1rem] hover:bg-transparent hover:border-[#c73636] hover:bg-[#c73636] hover:text-white text-xs rounded-[5px]">
-            My Shanties aren't showing
-          </a>
                 </div>
               </div>
               <div className="border mockup-window border-base-200 mb-8">
@@ -715,23 +713,6 @@ const Home: NextPage = () => {
               {/* end app windows */}
             </div>
           </div>
-
-          <div id='fyi' className='flex mx-auto'>
-            <div className="modal-box" style={{backgroundColor: '#B96158'}}>
-              <div className="flex justify-around">
-              <h4
-                    className="text-center text-xl font-bold"
-                    style={{ fontFamily: "Jangkuy", color:'#dbd7d5'}}
-                  >
-                    Hi Fren,
-                  </h4>
-              </div>
-              <div className="">
-                <p className="font-extralight text-sm py-4" style={{ fontFamily: "Montserrat", color: "white"}}>If after staking you don't see your Shantie please keep refreshing and be patient, your Shantie should show up anytime soon! </p>
-              </div>
-            </div>
-          </div>
-
         </div>
       </main>
     </>

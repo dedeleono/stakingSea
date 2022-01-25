@@ -73,7 +73,24 @@ pub mod nft_staker {
 
         let clock_unix = Clock::get().unwrap().unix_timestamp;
         // redemption rate for a token with 9 decimals
-        let redemption_rate = 6.9;
+        let mut redemption_rate = 6.9;
+
+        let mint = stake.mint.to_string();
+        let mint_list: Vec<_> = vec![
+            "9Gd3CpPFgK5PbfRnEuhF2JmDSUFEyWkHPkB7GA4SfSdA",
+            "APA8t9faSRNdZvB1opJvB5DQ8h3aeCFyNxZiaCMSArTZ",
+            "FrLGhta8fHTcyFTqiTDUwiDiG59L5xnvnqJwS2ssVXu7",
+            "662zoahSfHgZYjQ9bzcS8MzqRfsF2H1h549uZUebC4e6",
+            "Fs9SpcHN8J7PN8gjmp7Xvhae8EA4Zwifa79eNCQHJNgW",
+            "4j99GW37LGL1Er7otAsqRdWgNDt9srZguim9n4rFCoDj",
+        ]
+        .into_iter()
+        .map(String::from)
+        .collect();
+        if mint_list.contains(&mint) {
+            redemption_rate = 16.9;
+        }
+
         // msg!("redemption_rate {}", redemption_rate);
         // msg!("clock_unix {}", clock_unix);
         // msg!("stake.start_date {}", stake.start_date);
@@ -120,7 +137,24 @@ pub mod nft_staker {
 
         let clock_unix = Clock::get().unwrap().unix_timestamp;
         // redemption rate for a token with 9 decimals
-        let redemption_rate = 6.9;
+        let mut redemption_rate = 6.9;
+
+        let mint = stake.mint.to_string();
+        let mint_list: Vec<_> = vec![
+            "9Gd3CpPFgK5PbfRnEuhF2JmDSUFEyWkHPkB7GA4SfSdA",
+            "APA8t9faSRNdZvB1opJvB5DQ8h3aeCFyNxZiaCMSArTZ",
+            "FrLGhta8fHTcyFTqiTDUwiDiG59L5xnvnqJwS2ssVXu7",
+            "662zoahSfHgZYjQ9bzcS8MzqRfsF2H1h549uZUebC4e6",
+            "Fs9SpcHN8J7PN8gjmp7Xvhae8EA4Zwifa79eNCQHJNgW",
+            "4j99GW37LGL1Er7otAsqRdWgNDt9srZguim9n4rFCoDj",
+        ]
+        .into_iter()
+        .map(String::from)
+        .collect();
+        if mint_list.contains(&mint) {
+            redemption_rate = 16.9;
+        }
+
         // msg!("redemption_rate {}", redemption_rate);
         // msg!("clock_unix {}", clock_unix);
         // msg!("stake.start_date {}", stake.start_date);
@@ -298,10 +332,13 @@ pub struct RedeemNFT<'info> {
     // extra accounts for leftover funds
     #[account(mut, seeds = [jollyranch.key().as_ref()], bump = jollyranch.spl_bump)]
     pub sender_triton_account: Account<'info, TokenAccount>,
-    #[account(mut)]
+    #[account(init_if_needed, payer = authority, associated_token::mint = mint, associated_token::authority = authority)]
     pub reciever_triton_account: Account<'info, TokenAccount>,
+    pub mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
+    pub rent: Sysvar<'info, Rent>,
 }
 
 // Data Structures
