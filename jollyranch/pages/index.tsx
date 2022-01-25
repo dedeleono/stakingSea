@@ -405,8 +405,11 @@ const Home: NextPage = () => {
         recieverSplAccount: wallet_nft_account.toString(),
         senderTritonAccount: jollyState.recieverSplAccount.toString(),
         recieverTritonAccount: jollyState.wallet_token_account.toString(),
-        tokenProgram: TOKEN_PROGRAM_ID.toString(),
+        mint: jollyState.spl_token.toString(),
         systemProgram: anchor.web3.SystemProgram.programId.toString(),
+        tokenProgram: TOKEN_PROGRAM_ID.toString(),
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID.toString(),
+        rent: anchor.web3.SYSVAR_RENT_PUBKEY.toString(),
       },
     });
   };
