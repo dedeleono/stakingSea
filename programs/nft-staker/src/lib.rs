@@ -320,25 +320,22 @@ pub struct RedeemRewards<'info> {
 #[derive(Accounts)]
 pub struct RedeemNFT<'info> {
     #[account(mut, has_one = authority)]
-    pub stake: Account<'info, Stake>,
+    pub stake: Box<Account<'info, Stake>>,
     #[account(mut)]
-    pub jollyranch: Account<'info, JollyRanch>,
+    pub jollyranch: Box<Account<'info, JollyRanch>>,
     pub authority: Signer<'info>,
     // spl_token specific validations
     #[account(mut, seeds = [stake.key().as_ref()], bump = stake.spl_bump)]
-    pub sender_spl_account: Account<'info, TokenAccount>,
+    pub sender_spl_account: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
-    pub reciever_spl_account: Account<'info, TokenAccount>,
+    pub reciever_spl_account: Box<Account<'info, TokenAccount>>,
     // extra accounts for leftover funds
     #[account(mut, seeds = [jollyranch.key().as_ref()], bump = jollyranch.spl_bump)]
-    pub sender_triton_account: Account<'info, TokenAccount>,
-    #[account(init_if_needed, payer = authority, associated_token::mint = mint, associated_token::authority = authority)]
-    pub reciever_triton_account: Account<'info, TokenAccount>,
-    pub mint: Account<'info, Mint>,
+    pub sender_triton_account: Box<Account<'info, TokenAccount>>,
+    #[account(mut)]
+    pub reciever_triton_account: Box<Account<'info, TokenAccount>>,
     pub token_program: Program<'info, Token>,
-    pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
-    pub rent: Sysvar<'info, Rent>,
 }
 
 // Data Structures
