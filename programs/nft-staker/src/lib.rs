@@ -327,14 +327,15 @@ pub struct RedeemNFT<'info> {
     // spl_token specific validations
     #[account(mut, seeds = [stake.key().as_ref()], bump = stake.spl_bump)]
     pub sender_spl_account: Box<Account<'info, TokenAccount>>,
-    #[account(mut)]
+    #[account(init_if_needed, payer = authority, associated_token::mint = nft, associated_token::authority = authority)]
     pub reciever_spl_account: Box<Account<'info, TokenAccount>>,
     // extra accounts for leftover funds
     #[account(mut, seeds = [jollyranch.key().as_ref()], bump = jollyranch.spl_bump)]
     pub sender_triton_account: Box<Account<'info, TokenAccount>>,
     #[account(init_if_needed, payer = authority, associated_token::mint = mint, associated_token::authority = authority)]
-    pub reciever_triton_account: Account<'info, TokenAccount>,
-    pub mint: Account<'info, Mint>,
+    pub reciever_triton_account: Box<Account<'info, TokenAccount>>,
+    pub mint: Box<Account<'info, Mint>>,
+    pub nft: Box<Account<'info, Mint>>,
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,

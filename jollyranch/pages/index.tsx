@@ -406,6 +406,7 @@ const Home: NextPage = () => {
         senderTritonAccount: jollyState.recieverSplAccount.toString(),
         recieverTritonAccount: jollyState.wallet_token_account.toString(),
         mint: jollyState.spl_token.toString(),
+        nft: nftPubKey.toString(),
         systemProgram: anchor.web3.SystemProgram.programId.toString(),
         tokenProgram: TOKEN_PROGRAM_ID.toString(),
         associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID.toString(),
