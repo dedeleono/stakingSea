@@ -402,22 +402,22 @@ const Home: NextPage = () => {
   };
 
   const redeemNFT = async (stakePubKey, nftPubKey) => {
-    // console.log("stakesPubKey", stakePubKey.toString());
-    // console.log("nftPubKey", nftPubKey.toString());
+    console.log("stakesPubKey", stakePubKey.toString());
+    console.log("nftPubKey", nftPubKey.toString());
     let wallet_nft_account = await Token.getAssociatedTokenAddress(
       ASSOCIATED_TOKEN_PROGRAM_ID,
       TOKEN_PROGRAM_ID,
       nftPubKey,
       jollyState.program.provider.wallet.publicKey
     );
-    // console.log("wallet_nft_account", wallet_nft_account.toString());
+    console.log("wallet_nft_account", wallet_nft_account.toString());
     let [stake_spl, _stakeBump] =
       await anchor.web3.PublicKey.findProgramAddress(
         [stakePubKey.toBuffer()],
         jollyState.program.programId
       );
 
-    // console.log("stake_spl", stake_spl.toString());
+    console.log("stake_spl", stake_spl.toString());
 
     await jollyState.program.rpc.redeemNft({
       accounts: {
@@ -429,6 +429,7 @@ const Home: NextPage = () => {
         senderTritonAccount: jollyState.recieverSplAccount.toString(),
         recieverTritonAccount: jollyState.wallet_token_account.toString(),
         mint: jollyState.spl_token.toString(),
+        nft: nftPubKey.toString(),
         systemProgram: anchor.web3.SystemProgram.programId.toString(),
         tokenProgram: TOKEN_PROGRAM_ID.toString(),
         associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID.toString(),
