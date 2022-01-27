@@ -92,6 +92,29 @@ const Home: NextPage = () => {
       nft,
       wallet.publicKey
     );
+
+    // check if token has an associated account
+    // if not send from the wallet account
+    const largestAccounts = await jollyState.connection.getTokenLargestAccounts(
+      nft
+    );
+    // console.log("largestAccounts", largestAccounts);
+    // const largestAccountInfo = await jollyState.connection.getParsedAccountInfo(
+    //   largestAccounts.value[0].address
+    // );
+    // console.log(
+    //   "largestAccounts.value[0].address",
+    //   largestAccounts.value[0].address.toString()
+    // );
+    // console.log(largestAccountInfo.value.data.parsed.info.owner);
+    const hasATA =
+      largestAccounts.value[0].address.toString() ===
+      wallet_nft_account.toString();
+    if (!hasATA) {
+      wallet_nft_account = largestAccounts.value[0].address;
+    }
+
+    // console.log("wallet_nft_account", wallet_nft_account.toString());
     await jollyState.program.rpc.stakeNft(stakeBump, {
       accounts: {
         authority: wallet.publicKey.toString(),
@@ -406,7 +429,6 @@ const Home: NextPage = () => {
         senderTritonAccount: jollyState.recieverSplAccount.toString(),
         recieverTritonAccount: jollyState.wallet_token_account.toString(),
         mint: jollyState.spl_token.toString(),
-        nft: nftPubKey.toString(),
         systemProgram: anchor.web3.SystemProgram.programId.toString(),
         tokenProgram: TOKEN_PROGRAM_ID.toString(),
         associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID.toString(),
@@ -549,7 +571,7 @@ const Home: NextPage = () => {
                       <div className="w-full mt-2 border stats border-base-100 m-2.5">
                         <div className="stat bg-base-100">
                           <div className="stat-value text-white">
-                            {totalRatsStaked.toLocaleString("en-US")}/3,333
+                            {totalRatsStaked.toLocaleString("en-US")}/3333
                           </div>
                           <div
                             className="stat-title text-white"
