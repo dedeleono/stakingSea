@@ -31,6 +31,7 @@ const NFTLoader: FC<NFTLoaderProps> = ({
       <div
         key={nft.nft_account.id.toString() || Math.random()}
         className="card w-72 m-4 card-bordered card-compact shadow-2xl bg-primary-content text"
+        style={{border: 'solid 1px white'}}
       >
         <figure>
           <img src={`${nft.image}`} alt="sea shanties nft image" />
