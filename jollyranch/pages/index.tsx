@@ -19,9 +19,8 @@ import idl_type from "../lib/nft_staker.json";
 import { getNftsForOwner } from "../lib/mint-one-token";
 import { programs } from "@metaplex/js";
 import NFTLoader from "../components/NFTLoader";
-import { url } from "inspector";
-import Bg from "../public/images/out.png";
-import { readBuilderProgram } from "typescript";
+import Navigation from "../components/Navigation";
+import Bg from "../public/images/out.jpg";
 
 const {
   metadata: { Metadata },
@@ -39,7 +38,7 @@ type jollyProgramState = {
   jollyAccount: any;
 };
 
-const Home: NextPage = () => {
+export default function Home() {
   const wallet = useWallet();
   const [jollyState, setJollyState] = useState({} as jollyProgramState);
   const [stakedNFTs, setStakedNFTs] = useState([]);
@@ -520,13 +519,17 @@ const Home: NextPage = () => {
         <div
           style={{
             backgroundImage: `url(${Bg.src})`,
+            backgroundAttachment: "fixed",
             objectFit: "contain",
             backgroundRepeat: "no-repeat",
             backgroundAttachment: "fixed",
             zIndex: "10",
+            display: "absolute",
+            backgroundSize: "cover",
           }}
           className="grid grid-cols-1 min-h-screen bg-neutral-focus text-neutral-content p-16 bg-center"
         >
+          <Navigation activeId="shill-city-capital" />
           {/* Loading Modal */}
           <a href="#loader" className="btn btn-primary hidden" ref={loaderRef}>
             open loader
@@ -534,7 +537,7 @@ const Home: NextPage = () => {
           <div id="loader" className="modal">
             <div className="modal-box stat">
               <div className="stat-figure text-primary">
-                <button className="btn loading btn-circle btn-lg bg-base-200 btn-ghost"></button>
+                <button className="btn loading btn-circle btn-lg bg-base-200 btn-ghost" />
               </div>
               <p style={{ fontFamily: "Montserrat" }}>Loading...</p>
               <div className="stat-desc max-w-[90%]">
@@ -542,7 +545,7 @@ const Home: NextPage = () => {
                   value={loader}
                   max="5000"
                   className="progress progress-black"
-                ></progress>
+                />
               </div>
               <a
                 href="#"
@@ -554,7 +557,7 @@ const Home: NextPage = () => {
               </a>
             </div>
           </div>
-          <div className="text-center col-span-1">
+          <div className="text-center pt-8 md:pt-20 col-span-1">
             <div className="grid-cols-3">
               {/* Navbar Section */}
               <div className="navbar mb-8 shadow-lg bg-neutral text-neutral-content rounded-box">
@@ -569,8 +572,8 @@ const Home: NextPage = () => {
                 <div className="hidden px-2 mx-2 navbar-center sm:flex">
                   <div className="flex items-stretch">
                     {wallet.publicKey && (
-                      <div className="w-full mt-2 border stats border-base-100 m-2.5">
-                        <div className="stat bg-base-100">
+                      <div className="w-full mt-2 border stats border-secondary m-2.5">
+                        <div className="stat bg-secondary">
                           <div className="stat-value text-white">
                             {totalRatsStaked.toLocaleString("en-US")}/3,333
                           </div>
@@ -744,6 +747,4 @@ const Home: NextPage = () => {
       </main>
     </>
   );
-};
-
-export default Home;
+}

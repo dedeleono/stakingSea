@@ -4,7 +4,18 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        yellow: "#FEFF05",
+        green: "#01A47B",
+        "green-light": "#05D5A1",
+        "body": "#1b527b",
+      },
+      fontFamily: {
+        scratchy: ['Scratchy', 'serif'],
+        jangkuy: ['Jangkuy', 'serif'],
+      },
+    },
   },
   plugins: [require("daisyui")],
   daisyui: {
@@ -23,7 +34,7 @@ module.exports = {
           neutral: "#181830",
           "neutral-focus": "#111122",
           "neutral-content": "#ffffff",
-          "base-100": "#3DB489",
+          "base-100": "transparent",
           "base-200": "#ffffff",
           "base-300": "#A134FE",
           "base-content": "#000000",

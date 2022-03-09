@@ -56,7 +56,7 @@ const WalletProviderSection: FC = ({ children }) => {
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider logo="/images/logo.png">
+        <WalletModalProvider logo="/logo.png">
           {children}
         </WalletModalProvider>
       </WalletProvider>
