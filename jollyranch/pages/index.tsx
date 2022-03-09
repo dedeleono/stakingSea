@@ -522,7 +522,6 @@ export default function Home() {
             backgroundAttachment: "fixed",
             objectFit: "contain",
             backgroundRepeat: "no-repeat",
-            backgroundAttachment: "fixed",
             zIndex: "10",
             display: "absolute",
             backgroundSize: "cover",
