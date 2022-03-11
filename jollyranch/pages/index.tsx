@@ -400,6 +400,33 @@ export default function Home() {
     // );
   };
 
+  const redeemAllRewards = async () => {
+      const tx = new anchor.web3.Transaction();
+      for (let i = 0; i < stakedMints.length; i++) {
+          const redeem = await jollyState.program.instruction.redeemRewards({
+              accounts: {
+                  stake: stakedMints[i].nft_account.publicKey.toString(),
+                  jollyranch: jollyState.jollyranch.toString(),
+                  authority: jollyState.program.provider.wallet.publicKey.toString(),
+                  senderSplAccount: jollyState.recieverSplAccount.toString(),
+                  recieverSplAccount: jollyState.wallet_token_account.toString(),
+                  mint: jollyState.spl_token.toString(),
+                  systemProgram: anchor.web3.SystemProgram.programId.toString(),
+                  tokenProgram: TOKEN_PROGRAM_ID.toString(),
+                  associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID.toString(),
+                  rent: anchor.web3.SYSVAR_RENT_PUBKEY.toString(),
+              },
+          });
+          tx.add(redeem);
+      }
+      try {
+          await jollyState.program.provider.send(tx);
+      } catch (err) {
+          console.log(err);
+      }
+  }
+
+
   const redeemNFT = async (stakePubKey, nftPubKey) => {
     console.log("stakesPubKey", stakePubKey.toString());
     console.log("nftPubKey", nftPubKey.toString());
@@ -526,7 +553,7 @@ export default function Home() {
             display: "absolute",
             backgroundSize: "cover",
           }}
-          className="grid grid-cols-1 min-h-screen bg-neutral-focus text-neutral-content p-16 bg-center"
+          className="grid grid-cols-1 min-h-screen bg-neutral-focus text-neutral-content pt-16 p-2 md:p-16 bg-center"
         >
           <Navigation activeId="shill-city-capital" />
           {/* Loading Modal */}
@@ -571,8 +598,8 @@ export default function Home() {
                 <div className="hidden px-2 mx-2 navbar-center sm:flex">
                   <div className="flex items-stretch">
                     {wallet.publicKey && (
-                      <div className="w-full mt-2 border stats border-secondary m-2.5">
-                        <div className="stat bg-secondary">
+                      <div className="w-full mt-2  m-2.5">
+                        <div className="stat bg-accent">
                           <div className="stat-value text-white">
                             {totalRatsStaked.toLocaleString("en-US")}/3,333
                           </div>
@@ -580,7 +607,7 @@ export default function Home() {
                             className="stat-title text-white"
                             style={{ fontFamily: "Montserrat" }}
                           >
-                            Shanties Staked
+                            {((totalRatsStaked/3333)*100).toFixed(2)}% Shanties Staked
                           </div>
                         </div>
                       </div>
@@ -636,6 +663,26 @@ export default function Home() {
                   )}
                   {stakedMints.length > 0 && !loadingStakes && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                      {stakedMints.length > 1 && (
+                          <div
+                              className="card w-72 m-4 card-bordered card-compact shadow-2xl bg-primary-content text"
+                          >
+                            <button
+                                className="btn h-full btn-secondary font-jangkuy"
+                                onClick={async () => {
+                                  await redeemAllRewards();
+                                  await refresh();
+                                }}
+                            >
+                          <span className="flex p-4 flex-col items-center">
+                            <span className="block text-lg pb-2">Redeem all</span>
+                            <span className="block w-1/2">
+                              <img src="/images/trtn.png"/>
+                            </span>
+                          </span>
+                            </button>
+                          </div>
+                      )}
                       {stakedMints.map((nft, i) => {
                         // console.log("mint nft", nft);
                         return (
