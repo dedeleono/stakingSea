@@ -516,11 +516,11 @@ export default function Home() {
         );
         // console.log("nftsforowner", nftsForOwner);
         setNfts(nftsForOwner as any);
-        setLoadingNfts(false);
       })();
       (async () => {
         await getTotalStakedRats();
         await getStakedNfts();
+        setLoadingNfts(false);
       })();
     } else {
       // console.log("reset jollyState");
@@ -644,6 +644,27 @@ export default function Home() {
                     />
                   </div>
                 </div>
+              </div>
+              <div>
+                {(jollyState["program"] && wallet.connected && wallet.publicKey && !loadingStakes && !loadingNfts && nfts.length === 0 && stakedMints.length === 0) && (
+                    <div>
+                      <div className="w-full flex justify-center justify-items-center text-center">
+                        <div className="max-w-md">
+                          <h1 className="text-4xl font-bold" style={{ fontFamily: "Jangkuy" }}>You don&apos;t have any Shanties 😥</h1>
+                          <div className="mt-5 mb-8">
+                            <a
+                                href="https://magiceden.io/marketplace/sea_shanties"
+                                rel="noreferrer noopener"
+                                target="_blank"
+                                className="btn btn-lg btn-secondary"
+                            >
+                              Buy on Magic Eden
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                )}
               </div>
               <div className="border mockup-window border-base-200 mb-8">
                 {/* begin app windows */}
