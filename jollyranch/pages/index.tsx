@@ -691,7 +691,7 @@ export default function Home() {
                             </span>
                             {(stakedMints.length > redeemAllChunk) && (
                                 <span className="font-normal font-sans leading-normal mt-2 opacity-50">
-                                    {Math.floor(stakedMints.length / redeemAllChunk)} transactions will be prompted
+                                    {Math.ceil(stakedMints.length / redeemAllChunk)} transactions will be prompted
                                 </span>
                             )}
                           </span>
