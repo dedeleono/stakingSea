@@ -26,6 +26,8 @@ const {
   metadata: { Metadata },
 } = programs;
 
+const redeemAllChunk = 10;
+
 type jollyProgramState = {
   program: any;
   connection: any;
@@ -401,29 +403,37 @@ export default function Home() {
   };
 
   const redeemAllRewards = async () => {
-      const tx = new anchor.web3.Transaction();
-      for (let i = 0; i < stakedMints.length; i++) {
-          const redeem = await jollyState.program.instruction.redeemRewards({
-              accounts: {
-                  stake: stakedMints[i].nft_account.publicKey.toString(),
-                  jollyranch: jollyState.jollyranch.toString(),
-                  authority: jollyState.program.provider.wallet.publicKey.toString(),
-                  senderSplAccount: jollyState.recieverSplAccount.toString(),
-                  recieverSplAccount: jollyState.wallet_token_account.toString(),
-                  mint: jollyState.spl_token.toString(),
-                  systemProgram: anchor.web3.SystemProgram.programId.toString(),
-                  tokenProgram: TOKEN_PROGRAM_ID.toString(),
-                  associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID.toString(),
-                  rent: anchor.web3.SYSVAR_RENT_PUBKEY.toString(),
-              },
-          });
-          tx.add(redeem);
+    const tx = new anchor.web3.Transaction();
+    // Chunked request to prevent transaction to large error (1232 bytes)
+    let i,j, stakedMintsChunked;
+    for (i = 0,j = stakedMints.length; i < j; i += redeemAllChunk) {
+      stakedMintsChunked = stakedMints.slice(i, i + redeemAllChunk);
+      // do whatever
+      for (let k = 0; k < stakedMintsChunked.length; k++) {
+
+        const redeem = await jollyState.program.instruction.redeemRewards({
+          accounts: {
+            stake: stakedMintsChunked[k].nft_account.publicKey.toString(),
+            jollyranch: jollyState.jollyranch.toString(),
+            authority: jollyState.program.provider.wallet.publicKey.toString(),
+            senderSplAccount: jollyState.recieverSplAccount.toString(),
+            recieverSplAccount: jollyState.wallet_token_account.toString(),
+            mint: jollyState.spl_token.toString(),
+            systemProgram: anchor.web3.SystemProgram.programId.toString(),
+            tokenProgram: TOKEN_PROGRAM_ID.toString(),
+            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID.toString(),
+            rent: anchor.web3.SYSVAR_RENT_PUBKEY.toString(),
+          },
+        });
+        tx.add(redeem);
       }
       try {
-          await jollyState.program.provider.send(tx);
+        await jollyState.program.provider.send(tx);
       } catch (err) {
-          console.log(err);
+        console.log(err);
+        break;
       }
+    }
   }
 
 
@@ -679,6 +689,11 @@ export default function Home() {
                             <span className="block w-1/2">
                               <img src="/images/trtn.png"/>
                             </span>
+                            {(stakedMints.length > redeemAllChunk) && (
+                                <span className="font-normal font-sans leading-normal mt-2 opacity-50">
+                                    {Math.floor(stakedMints.length / redeemAllChunk)} transactions will be prompted
+                                </span>
+                            )}
                           </span>
                             </button>
                           </div>
