@@ -34,7 +34,7 @@ const NFTLoader: FC<NFTLoaderProps> = ({
         style={{border: 'solid 1px white'}}
       >
         <figure>
-          <img src={`${nft.image}`} alt="sea shanties nft image" />
+          <img src={`${nft.image}`} alt="sea shanties nft image" className="aspect-video object-cover"/>
         </figure>
         <div className="card-body text-center items-center">
           <h2

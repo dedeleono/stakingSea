@@ -625,7 +625,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="navbar-end">
-                  <div
+                  {/**                  <div
                     className="btn btn-primary z-50"
                     style={{ color: "#fff" }}
                   >
@@ -641,7 +641,26 @@ export default function Home() {
                         fontFamily: "Montserrat",
                         fontSize: "0.8rem",
                       }}
-                    />
+                    /> */}
+                                      <div className="mr-4 justify-center align-center">
+                    {stakedMints.length > 1 && (
+                      <button
+                        className="btn h-full btn-secondary mt-4 font-jangkuy"
+                        onClick={async () => {
+                          await redeemAllRewards();
+                          await refresh();
+                        }}
+                      >
+                        Redeem All
+                      </button>
+                    )}
+                    {stakedMints.length > redeemAllChunk && (
+                      <span className="text-[0.8rem] font-[Montserrat] font-sans leading-normal mt-2 block opacity-50">
+                        {Math.ceil(stakedMints.length / redeemAllChunk)}{" "}
+                        transactions will be prompted
+                      </span>
+                    )}
+                  </div>
                   </div>
                 </div>
               </div>
@@ -666,9 +685,9 @@ export default function Home() {
                     </div>
                 )}
               </div>
-              <div className="border mockup-window border-base-200 mb-8">
+              <div className="card bg-info bg-opacity-10 mb-8 md:backdrop-blur-sm">
                 {/* begin app windows */}
-                <div className="flex justify-center px-2 py-4 border-t border-base-200">
+                <div className="flex justify-center px-2 py-4 border-base-200">
                   {loadingStakes && wallet.connected && (
                     <h1
                       className="text-lg font-400 animate-pulse"
@@ -694,7 +713,7 @@ export default function Home() {
                   )}
                   {stakedMints.length > 0 && !loadingStakes && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                      {stakedMints.length > 1 && (
+                      {/**                      {stakedMints.length > 1 && (
                           <div
                               className="card w-72 m-4 card-bordered card-compact shadow-2xl bg-primary-content text"
                           >
@@ -718,7 +737,7 @@ export default function Home() {
                           </span>
                             </button>
                           </div>
-                      )}
+                      )} */}
                       {stakedMints.map((nft, i) => {
                         // console.log("mint nft", nft);
                         return (
@@ -825,7 +844,6 @@ export default function Home() {
               {/* end app windows */}
             </div>
           </div>
-        </div>
       </main>
     </>
   );
