@@ -625,23 +625,44 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="navbar-end">
-                  <div
-                    className="btn btn-primary z-50"
-                    style={{ color: "#fff" }}
-                  >
-                    <WalletMultiButton
-                      style={{
-                        all: "unset",
-                        height: "100%",
-                        width: "100%",
-                        zIndex: "10",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        fontFamily: "Montserrat",
-                        fontSize: "0.8rem",
-                      }}
-                    />
+                <div className="mr-4 justify-center align-center">
+                    {stakedMints.length > 1 && (
+                      <button
+                        className="btn h-full btn-secondary mt-4 font-jangkuy"
+                        onClick={async () => {
+                          await redeemAllRewards();
+                          await refresh();
+                        }}
+                      >
+                        Redeem All
+                      </button>
+                    )}
+                    {stakedMints.length > redeemAllChunk && (
+                      <span className="text-[0.8rem] font-[Montserrat] font-sans leading-normal mt-2 block opacity-50">
+                        {Math.ceil(stakedMints.length / redeemAllChunk)}{" "}
+                        transactions will be prompted
+                      </span>
+                    )}
+                    {!wallet.publicKey && (
+                        <div
+                            className="btn btn-primary z-50"
+                            style={{ color: "#fff" }}
+                        >
+                        <WalletMultiButton
+                            style={{
+                              all: "unset",
+                              height: "100%",
+                              width: "100%",
+                              zIndex: "10",
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              fontFamily: "Montserrat",
+                              fontSize: "0.8rem",
+                            }}
+                        />
+                        </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -694,7 +715,7 @@ export default function Home() {
                   )}
                   {stakedMints.length > 0 && !loadingStakes && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                      {stakedMints.length > 1 && (
+                      {/**                      {stakedMints.length > 1 && (
                           <div
                               className="card w-72 m-4 card-bordered card-compact shadow-2xl bg-primary-content text"
                           >
@@ -718,7 +739,7 @@ export default function Home() {
                           </span>
                             </button>
                           </div>
-                      )}
+                      )} */}
                       {stakedMints.map((nft, i) => {
                         // console.log("mint nft", nft);
                         return (

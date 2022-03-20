@@ -30,8 +30,7 @@ const NFTLoader: FC<NFTLoaderProps> = ({
     return (
       <div
         key={nft.nft_account.id.toString() || Math.random()}
-        className="card w-72 m-4 card-bordered card-compact shadow-2xl bg-primary-content text"
-        style={{border: 'solid 1px white'}}
+        className="card w-72 m-4 card-compact shadow-2xl bg-primary-content text"
       >
         <figure>
           <img src={`${nft.image}`} alt="sea shanties nft image" className="aspect-video object-cover"/>
@@ -73,21 +72,14 @@ const NFTLoader: FC<NFTLoaderProps> = ({
           </div>
           <div className="justify-center card-actions">
             <button
-              style={{
-                fontFamily: "Scratchy",
-                fontSize: "1.3rem",
-                color: "#ffffff",
-                borderColor: "#3DB489",
-              }}
-              className="btn btn-secondary badge-outline"
+              className="btn rounded-md btn-sm btn-secondary font-[Jangkuy] text-[0.8rem]"
               onClick={onRedeem}
             >
               redeem
             </button>
             <button
-              className="btn btn-ghost"
+              className="tn rounded-md btn-sm btn-accent font-[Jangkuy] text-[0.8rem]"
               onClick={unStake}
-              style={{ fontFamily: "Scratchy", fontSize: "1.3rem" }}
             >
               unstake
             </button>
