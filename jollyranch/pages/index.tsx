@@ -403,14 +403,14 @@ export default function Home() {
   };
 
   const redeemAllRewards = async () => {
-    const tx = new anchor.web3.Transaction();
+    let tx;
     // Chunked request to prevent transaction to large error (1232 bytes)
     let i,j, stakedMintsChunked;
     for (i = 0,j = stakedMints.length; i < j; i += redeemAllChunk) {
+      tx = new anchor.web3.Transaction();
       stakedMintsChunked = stakedMints.slice(i, i + redeemAllChunk);
       // do whatever
       for (let k = 0; k < stakedMintsChunked.length; k++) {
-
         const redeem = await jollyState.program.instruction.redeemRewards({
           accounts: {
             stake: stakedMintsChunked[k].nft_account.publicKey.toString(),
