@@ -687,6 +687,20 @@ export default function Home() {
                     </div>
                 )}
               </div>
+              {stakedMints.length > 0 && !loadingStakes && (
+                  <div className="card gap-4 bg-neutral bg-opacity-60 mb-4 md:backdrop-blur-sm flex flex-row text-left p-8 justify-center items-center">
+                    <div>
+                      <div className="font-bold pb-2">COMING SOON…</div>
+                      <h2 className="font-jangkuy text-2xl  md:text-4xl">Get ready for<br/>Hotels and mortgage</h2>
+                      <div className="font-bold opacity-50 max-w-3xl">
+                        A small collection of hotels will be released that can only be minted thru burning 4 Shanties + X $TRTN. Hotels will have locking periods, earn High rewards in $TRTN, deflationary mechanic for Shanties, and can be used as collateral for loans.
+                      </div>
+                    </div>
+                    <div className="w-1/2 flex text-center hidden lg:block">
+                      <img className="max-w-xs inline" src="/images/hotels.png" />
+                    </div>
+                  </div>
+              )}
               <div className="card bg-info bg-opacity-10 mb-8 md:backdrop-blur-sm">
                 {/* begin app windows */}
                 <div className="flex justify-center px-2 py-4 border-base-200">
