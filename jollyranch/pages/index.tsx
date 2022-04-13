@@ -91,25 +91,7 @@ export default function Home() {
                 </div>
                 <div className="navbar-end">
                 <div className="mr-4 justify-center align-center">
-                    {!!(shantiesStats?.stakedNfts && shantiesStats.stakedNfts.length > 1) && (
-                      <button
-                        className={`btn h-full btn-secondary mt-4 font-jangkuy ${isRedeemingAll && 'loading'}`}
-                        onClick={async () => {
-                          setIsRedeemingAll(true);
-                          await redeemAllRewards(redeemAllChunk);
-                          setIsRedeemingAll(false);
-                        }}
-                      >
-                        Redeem All
-                      </button>
-                    )}
-                    {!!(shantiesStats?.stakedNfts && shantiesStats.stakedNfts.length > redeemAllChunk) && (
-                      <span className="text-[0.8rem] font-[Montserrat] font-sans leading-normal mt-2 block opacity-50">
-                        {Math.ceil(shantiesStats.stakedNfts.length / redeemAllChunk)}{" "}
-                        transactions will be prompted
-                      </span>
-                    )}
-                    {!wallet?.publicKey && (
+                    {!wallet?.publicKey ? (
                         <div className="btn btn-primary z-50 text-white">
                         <WalletMultiButton
                             style={{
@@ -125,6 +107,27 @@ export default function Home() {
                             }}
                         />
                         </div>
+                    ) : (
+                        <>
+                          {!!(shantiesStats?.stakedNfts && shantiesStats.stakedNfts.length > 1) && (
+                              <button
+                                  className={`btn h-full btn-secondary mt-4 font-jangkuy ${isRedeemingAll && 'loading'}`}
+                                  onClick={async () => {
+                                    setIsRedeemingAll(true);
+                                    await redeemAllRewards(redeemAllChunk);
+                                    setIsRedeemingAll(false);
+                                  }}
+                              >
+                                Redeem All
+                              </button>
+                          )}
+                          {!!(shantiesStats?.stakedNfts && shantiesStats.stakedNfts.length > redeemAllChunk) && (
+                              <span className="text-[0.8rem] font-[Montserrat] font-sans leading-normal mt-2 block opacity-50">
+                                {Math.ceil(shantiesStats.stakedNfts.length / redeemAllChunk)}{" "}
+                                        transactions will be prompted
+                              </span>
+                          )}
+                        </>
                     )}
                   </div>
                 </div>
