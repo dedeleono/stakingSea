@@ -21,6 +21,7 @@ export default function Home() {
   const redeemAllRewards = useShantiesStore((state) => state.redeemAllRewards);
   const [initLoading, setInitLoading] = useState(false);
   const [walletConnected, setWalletConnected] = useState(false);
+  const [isRedeemingAll, setIsRedeemingAll] = useState(false);
 
   useEffect(() => {
     async function initShantiesStore() {
@@ -92,9 +93,11 @@ export default function Home() {
                 <div className="mr-4 justify-center align-center">
                     {!!(shantiesStats?.stakedNfts && shantiesStats.stakedNfts.length > 1) && (
                       <button
-                        className="btn h-full btn-secondary mt-4 font-jangkuy"
+                        className={`btn h-full btn-secondary mt-4 font-jangkuy ${isRedeemingAll && 'loading'}`}
                         onClick={async () => {
+                          setIsRedeemingAll(true);
                           await redeemAllRewards(redeemAllChunk);
+                          setIsRedeemingAll(false);
                         }}
                       >
                         Redeem All
