@@ -38,8 +38,8 @@ type ShantiesStats = {
 interface UseShantiesStore {
     state : ShantiesState;
     stats: ShantiesStats,
-    getStats: () => void;
-    initState: (wallet: AnchorWallet) => void;
+    getStats: () => Promise<boolean>;
+    initState: (wallet: AnchorWallet,loadStats?: boolean) => Promise<boolean>;
     stakeNFT:(nftPubKey: PublicKey) => Promise<boolean>;
     unStakeNFT:(stakePubKey: PublicKey, nftPubKey: PublicKey) => Promise<boolean>;
     redeemRewards:(stakePubKey: PublicKey) => Promise<boolean>;
@@ -62,8 +62,9 @@ const useShantiesStore = create<UseShantiesStore>((set, get) => ({
                 unStakedNfts,
             },
         });
+        return true;
     },
-    initState: async (wallet: AnchorWallet) => {
+    initState: async (wallet: AnchorWallet, loadStats=false) => {
         const connection = new anchor.web3.Connection(
             process.env.NEXT_PUBLIC_RPC_ENDPOINT as string,
             "processed" as ConfirmOptions
@@ -109,6 +110,11 @@ const useShantiesStore = create<UseShantiesStore>((set, get) => ({
                 jollyAccount,
             },
         });
+
+        if(loadStats) {
+            await get().getStats();
+        }
+        return true
     },
     stakeNFT: async (nftPubKey: PublicKey) => {
         const _state = get().state;

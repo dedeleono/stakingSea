@@ -26,7 +26,7 @@ const WalletProviderSection: FC = ({ children }) => {
     network = "mainnet-beta" as WalletAdapterNetwork;
   }
 
-  var endpoint = "";
+  let endpoint = "";
   if (process.env.NEXT_PUBLIC_SELECTED_ENDPOINT == "quicknode-devnet") {
     endpoint = process.env.NEXT_PUBLIC_QUICKNODE_DEVNET_RPC_ENDPOINT;
   } else if (

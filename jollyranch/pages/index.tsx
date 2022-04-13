@@ -1,5 +1,5 @@
 import Head from "next/head";
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import {ToastContainer} from 'react-toastify';
@@ -14,30 +14,27 @@ const redeemAllChunk = 10;
 export default function Home() {
   const wallet = useAnchorWallet();
   const initShantiesState = useShantiesStore((state) => state.initState);
-  const shantiesState = useShantiesStore((state) => state.state);
-  const getShantiesStats = useShantiesStore((state) => state.getStats);
   const shantiesStats = useShantiesStore((state) => state.stats);
   const stakeShanty = useShantiesStore((state) => state.stakeNFT);
   const unStakeShanty = useShantiesStore((state) => state.unStakeNFT);
   const redeemShantyRewards = useShantiesStore((state) => state.redeemRewards);
   const redeemAllRewards = useShantiesStore((state) => state.redeemAllRewards);
+  const [initLoading, setInitLoading] = useState(false);
+  const [walletConnected, setWalletConnected] = useState(false);
 
   useEffect(() => {
+    async function initShantiesStore() {
+      setInitLoading(true);
+      await initShantiesState(wallet, true);
+      setInitLoading(false);
+    }
     if (wallet?.publicKey) {
-      initShantiesState(wallet);
+      setWalletConnected(true);
+      initShantiesStore();
+    } else {
+      setWalletConnected(false);
     }
   }, [wallet]);
-
-  useEffect(() => {
-    if(shantiesState?.program) {
-      getShantiesStats();
-    }
-  }, [shantiesState]);
-
-  if(shantiesStats?.stakedNfts) {
-    console.log('shantiesStats', shantiesStats.stakedNfts);
-  }
-
 
   return (
     <>
@@ -66,19 +63,15 @@ export default function Home() {
           <Navigation activeId="shill-city-capital" />
           <div className="text-center pt-8 md:pt-20 col-span-1">
             <div className="grid-cols-3">
-              {/* Navbar Section */}
               <div className="navbar mb-8 shadow-lg bg-neutral text-neutral-content rounded-box">
                 <div className="px-2 mx-2 navbar-start">
-                  <span
-                    className="text-lg font-bold"
-                    style={{ fontFamily: "Jangkuy" }}
-                  >
+                  <span className="text-lg font-bold font-jangkuy">
                     Shill City Capital
                   </span>
                 </div>
                 <div className="hidden px-2 mx-2 navbar-center sm:flex">
                   <div className="flex items-stretch">
-                    {!!(wallet?.publicKey && shantiesStats?.totalStaked) && (
+                    {!!(walletConnected && shantiesStats?.totalStaked) && (
                       <div className="w-full mt-2  m-2.5">
                         <div className="stat bg-accent">
                           <div className="stat-value text-white">
@@ -114,10 +107,7 @@ export default function Home() {
                       </span>
                     )}
                     {!wallet?.publicKey && (
-                        <div
-                            className="btn btn-primary z-50"
-                            style={{ color: "#fff" }}
-                        >
+                        <div className="btn btn-primary z-50 text-white">
                         <WalletMultiButton
                             style={{
                               all: "unset",
@@ -141,7 +131,9 @@ export default function Home() {
                     <div>
                       <div className="w-full flex justify-center justify-items-center text-center">
                         <div className="max-w-md">
-                          <h1 className="text-4xl font-bold" style={{ fontFamily: "Jangkuy" }}>You don&apos;t have any Shanties 😥</h1>
+                          <h1 className="text-4xl font-bold font-jangkuy">
+                            You don&apos;t have any Shanties 😥
+                          </h1>
                           <div className="mt-5 mb-8">
                             <a
                                 href="https://magiceden.io/marketplace/sea_shanties"
@@ -160,8 +152,12 @@ export default function Home() {
               {!!(shantiesStats?.stakedNfts && shantiesStats.stakedNfts.length > 0) && (
                   <div className="card gap-4 bg-neutral bg-opacity-60 mb-4 md:backdrop-blur-sm flex flex-row text-left p-8 justify-center items-center">
                     <div>
-                      <div className="font-bold pb-2 text-[#feff04] font-[Scratchy] text-2xl">COMING SOON…</div>
-                      <h2 className="font-jangkuy text-2xl  md:text-4xl py-2">Get ready for<br/>Hotels and mortgage</h2>
+                      <div className="font-bold pb-2 text-[#feff04] font-[Scratchy] text-2xl">
+                        COMING SOON…
+                      </div>
+                      <h2 className="font-jangkuy text-2xl  md:text-4xl py-2">
+                        Get ready for<br/>Hotels and mortgage
+                      </h2>
                       <div className="font-[900] opacity-60 max-w-3xl font-[Montserrat]">
                         A small collection of hotels will be released that can only be minted thru burning 4 Shanties + X $TRTN. Hotels will have locking periods, earn High rewards in $TRTN, deflationary mechanic for Shanties, and can be used as collateral for loans.
                       </div>
@@ -172,93 +168,70 @@ export default function Home() {
                   </div>
               )}
               <div className="card bg-info bg-opacity-10 mb-8 md:backdrop-blur-sm">
-                {/* begin app windows */}
                 <div className="flex justify-center px-2 py-4 border-base-200">
-                  {!shantiesStats && wallet?.publicKey && (
-                    <h1
-                      className="text-lg font-400 animate-pulse"
-                      style={{
-                        fontFamily: "Scratchy",
-                        fontSize: "2.5rem",
-                        color: "#D5D3D2",
-                      }}
-                    >
-                      Loading your Staked NFT&apos;s, please wait...
-                    </h1>
+                  {walletConnected ? (
+                     <>
+                       {initLoading ? (
+                           <div className="font-scratchy text-white text-5xl animate-pulse">
+                             Loading your shanties, please wait...
+                           </div>
+                       ) : (
+                           <>
+                             {!!(shantiesStats?.stakedNfts && shantiesStats.stakedNfts.length > 0) ? (
+                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                   {shantiesStats.stakedNfts.map((nft) => {
+                                     return (
+                                         <NFTLoader
+                                             key={nft.id}
+                                             nft={nft}
+                                             onStake={stakeShanty}
+                                             onRedeem={redeemShantyRewards}
+                                             unStake={unStakeShanty}
+                                         />
+                                     );
+                                   })}
+                                 </div>
+                             ) : (
+                                 <div className="font-scratchy text-white text-5xl">
+                                   You don&apos;t have any shanties staked
+                                 </div>
+                             )}
+                           </>
+                       )}
+                     </>
+                  ) : (
+                      <div className="font-scratchy text-white text-5xl">
+                        Please connect your wallet above
+                      </div>
                   )}
-                  {!wallet?.publicKey && (
-                    <p
-                      style={{
-                        fontFamily: "Scratchy",
-                        fontSize: "2.5rem",
-                        color: "#D5D3D2",
-                      }}
-                    >
-                      Please connect your wallet above
-                    </p>
-                  )}
-                  {!!(shantiesStats?.stakedNfts && shantiesStats.stakedNfts.length > 0) && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                      {shantiesStats.stakedNfts.map((nft) => {
-                        return (
-                          <NFTLoader
-                            key={nft.id}
-                            nft={nft}
-                            onStake={stakeShanty}
-                            onRedeem={redeemShantyRewards}
-                            unStake={unStakeShanty}
-                          />
-                        );
-                      })}
+                </div>
+              </div>
+              {!!(walletConnected && shantiesStats?.unStakedNfts) && (
+                  <div className="border mockup-window border-base-200 mb-8">
+                    <div className="flex justify-center px-2 py-4 border-t border-base-200">
+                      <div>
+                        {!!(shantiesStats?.unStakedNfts && shantiesStats.unStakedNfts.length == 0 && wallet?.publicKey) && (
+                            <div className="font-scratchy text-white text-5xl">
+                              You don&apos;t have any shanties in your wallet
+                            </div>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {!!shantiesStats?.unStakedNfts && shantiesStats.unStakedNfts.map((nft) => {
+                          return (
+                              <NFTLoader
+                                  key={nft.id}
+                                  nft={nft}
+                                  onStake={stakeShanty}
+                                  onRedeem={redeemShantyRewards}
+                                  unStake={unStakeShanty}
+                              />
+                          );
+                        })}
+                      </div>
                     </div>
-                  )}
-                  {!!(shantiesStats?.stakedNfts && shantiesStats.stakedNfts.length == 0 && wallet?.publicKey) && (
-                      <p
-                        className="text-lg font-400"
-                        style={{
-                          fontFamily: "Scratchy",
-                          fontSize: "2.5rem",
-                          color: "#D5D3D2",
-                        }}
-                      >
-                        You don&apos;t have any shanties staked
-                      </p>
-                    )}
-                </div>
-              </div>
-
-              <div className="border mockup-window border-base-200 mb-8">
-                <div className="flex justify-center px-2 py-4 border-t border-base-200">
-                  <div>
-                    {!!(shantiesStats?.unStakedNfts && shantiesStats.unStakedNfts.length == 0 && wallet?.publicKey) && (
-                      <h1
-                        className="text-lg font-400"
-                        style={{
-                          fontFamily: "Scratchy",
-                          fontSize: "2.5rem",
-                          color: "#D5D3D2",
-                        }}
-                      >
-                        You don&apos;t have any shanties in your wallet
-                      </h1>
-                    )}
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {!!shantiesStats?.unStakedNfts && shantiesStats.unStakedNfts.map((nft) => {
-                      return (
-                          <NFTLoader
-                              key={nft.id}
-                              nft={nft}
-                              onStake={stakeShanty}
-                              onRedeem={redeemShantyRewards}
-                              unStake={unStakeShanty}
-                          />
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-              {/* end app windows */}
+              )}
             </div>
           </div>
         </div>

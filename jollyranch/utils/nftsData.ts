@@ -92,7 +92,6 @@ export default class NftsData {
                         ],
                     })
                     .then(async (res) => {
-                        console.log('test', res, _chunk);
                         if(res?.data?.result?.value?.length) {
                             // Filter nulls first (user wallet may not be updated) and then map
                             return res.data.result.value.filter((v:any) => v).map((v:any) => v.data.parsed.info.mint);
