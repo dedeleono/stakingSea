@@ -13,25 +13,25 @@ const redeemAllChunk = 10;
 
 export default function Home() {
   const wallet = useAnchorWallet();
-  const initShantiesState = useShantiesStore((state) => state.initState);
-  const shantiesStats = useShantiesStore((state) => state.stats);
-  const stakeShanty = useShantiesStore((state) => state.stakeNFT);
-  const unStakeShanty = useShantiesStore((state) => state.unStakeNFT);
-  const redeemShantyRewards = useShantiesStore((state) => state.redeemRewards);
+  const initState = useShantiesStore((state) => state.initState);
+  const stats = useShantiesStore((state) => state.stats);
+  const stake = useShantiesStore((state) => state.stakeNFT);
+  const unStake = useShantiesStore((state) => state.unStakeNFT);
+  const redeemRewards = useShantiesStore((state) => state.redeemRewards);
   const redeemAllRewards = useShantiesStore((state) => state.redeemAllRewards);
   const [initLoading, setInitLoading] = useState(false);
   const [walletConnected, setWalletConnected] = useState(false);
   const [isRedeemingAll, setIsRedeemingAll] = useState(false);
 
   useEffect(() => {
-    async function initShantiesStore() {
+    async function initStore() {
       setInitLoading(true);
-      await initShantiesState(wallet, true);
+      await initState(wallet, true);
       setInitLoading(false);
     }
     if (wallet?.publicKey) {
       setWalletConnected(true);
-      initShantiesStore();
+      initStore();
     } else {
       setWalletConnected(false);
     }
@@ -62,7 +62,7 @@ export default function Home() {
           className="grid grid-cols-1 min-h-screen bg-neutral-focus text-neutral-content pt-16 p-2 md:p-16 bg-center"
         >
           <Navigation activeId="shill-city-capital" />
-          <div className="text-center pt-8 md:pt-20 col-span-1">
+          <div className="text-center pt-8 md:pt-20 col-span-1 container mx-auto max-w-screen-xl">
             <div className="grid-cols-3">
               <div className="navbar mb-8 shadow-lg bg-neutral text-neutral-content rounded-box">
                 <div className="px-2 mx-2 navbar-start">
@@ -72,17 +72,17 @@ export default function Home() {
                 </div>
                 <div className="hidden px-2 mx-2 navbar-center sm:flex">
                   <div className="flex items-stretch">
-                    {!!(walletConnected && shantiesStats?.totalStaked) && (
+                    {!!(walletConnected && stats?.totalStaked) && (
                       <div className="w-full mt-2  m-2.5">
                         <div className="stat bg-accent">
                           <div className="stat-value text-white">
-                            {shantiesStats?.totalStaked.toLocaleString("en-US")}/3,333
+                            {stats?.totalStaked.toLocaleString("en-US")}/3,333
                           </div>
                           <div
                             className="stat-title text-white"
                             style={{ fontFamily: "Montserrat" }}
                           >
-                            {((shantiesStats?.totalStaked/3333)*100).toFixed(2)}% Shanties Staked
+                            {((stats?.totalStaked/3333)*100).toFixed(2)}% Shanties Staked
                           </div>
                         </div>
                       </div>
@@ -109,7 +109,7 @@ export default function Home() {
                         </div>
                     ) : (
                         <>
-                          {!!(shantiesStats?.stakedNfts && shantiesStats.stakedNfts.length > 1) && (
+                          {!!(stats?.stakedNfts && stats.stakedNfts.length > 1) && (
                               <button
                                   className={`btn h-full btn-secondary mt-4 font-jangkuy ${isRedeemingAll && 'loading'}`}
                                   onClick={async () => {
@@ -121,9 +121,9 @@ export default function Home() {
                                 Redeem All
                               </button>
                           )}
-                          {!!(shantiesStats?.stakedNfts && shantiesStats.stakedNfts.length > redeemAllChunk) && (
+                          {!!(stats?.stakedNfts && stats.stakedNfts.length > redeemAllChunk) && (
                               <span className="text-[0.8rem] font-[Montserrat] font-sans leading-normal mt-2 block opacity-50">
-                                {Math.ceil(shantiesStats.stakedNfts.length / redeemAllChunk)}{" "}
+                                {Math.ceil(stats.stakedNfts.length / redeemAllChunk)}{" "}
                                         transactions will be prompted
                               </span>
                           )}
@@ -133,7 +133,7 @@ export default function Home() {
                 </div>
               </div>
               <div>
-                {!!(shantiesStats?.unStakedNfts && !shantiesStats.unStakedNfts.length && shantiesStats?.stakedNfts && !shantiesStats.stakedNfts.length) && (
+                {!!(stats?.unStakedNfts && !stats.unStakedNfts.length && stats?.stakedNfts && !stats.stakedNfts.length) && (
                     <div>
                       <div className="w-full flex justify-center justify-items-center text-center">
                         <div className="max-w-md">
@@ -155,7 +155,7 @@ export default function Home() {
                     </div>
                 )}
               </div>
-              {!!(shantiesStats?.stakedNfts && shantiesStats.stakedNfts.length > 0) && (
+              {!!(stats?.stakedNfts && stats.stakedNfts.length > 0) && (
                   <div className="card gap-4 bg-neutral bg-opacity-60 mb-4 md:backdrop-blur-sm flex flex-row text-left p-8 justify-center items-center">
                     <div>
                       <div className="font-bold pb-2 text-[#feff04] font-[Scratchy] text-2xl">
@@ -183,16 +183,16 @@ export default function Home() {
                            </div>
                        ) : (
                            <>
-                             {!!(shantiesStats?.stakedNfts && shantiesStats.stakedNfts.length > 0) ? (
+                             {stats?.stakedNfts && stats.stakedNfts.length > 0 ? (
                                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                                   {shantiesStats.stakedNfts.map((nft) => {
+                                   {stats.stakedNfts.map((nft) => {
                                      return (
                                          <NFTLoader
                                              key={nft.id}
                                              nft={nft}
-                                             onStake={stakeShanty}
-                                             onRedeem={redeemShantyRewards}
-                                             unStake={unStakeShanty}
+                                             onStake={stake}
+                                             onRedeem={redeemRewards}
+                                             unStake={unStake}
                                          />
                                      );
                                    })}
@@ -212,25 +212,25 @@ export default function Home() {
                   )}
                 </div>
               </div>
-              {!!(walletConnected && shantiesStats?.unStakedNfts) && (
+              {!!(walletConnected && stats?.unStakedNfts) && (
                   <div className="border mockup-window border-base-200 mb-8">
                     <div className="flex justify-center px-2 py-4 border-t border-base-200">
                       <div>
-                        {!!(shantiesStats?.unStakedNfts && shantiesStats.unStakedNfts.length == 0 && wallet?.publicKey) && (
+                        {!!(stats?.unStakedNfts && stats.unStakedNfts.length == 0 && wallet?.publicKey) && (
                             <div className="font-scratchy text-white text-5xl">
                               You don&apos;t have any shanties in your wallet
                             </div>
                         )}
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {!!shantiesStats?.unStakedNfts && shantiesStats.unStakedNfts.map((nft) => {
+                        {!!stats?.unStakedNfts && stats.unStakedNfts.map((nft) => {
                           return (
                               <NFTLoader
                                   key={nft.id}
                                   nft={nft}
-                                  onStake={stakeShanty}
-                                  onRedeem={redeemShantyRewards}
-                                  unStake={unStakeShanty}
+                                  onStake={stake}
+                                  onRedeem={redeemRewards}
+                                  unStake={unStake}
                               />
                           );
                         })}
