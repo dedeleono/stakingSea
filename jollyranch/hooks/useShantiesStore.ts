@@ -8,7 +8,7 @@ import {
     TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
-import {getShantiesProgram} from "../utils/program";
+import {getShantiesProgram} from "../utils/shanties";
 import {getTrtnToken} from "../utils/token";
 
 import hashTable from "../lib/hash_table/shanties_hash_table.json";
