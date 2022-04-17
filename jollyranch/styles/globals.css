@@ -33,6 +33,11 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.wallet-adapter-button.wallet-adapter-button-trigger {
+  white-space: nowrap;
+}
+
 .wallet-adapter-button{
   justify-content: center !important;
 }
