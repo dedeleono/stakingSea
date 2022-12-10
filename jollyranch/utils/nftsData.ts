@@ -1,11 +1,12 @@
-import {Program} from "@project-serum/anchor";
-import {getMetaplexToken} from "./token";
+import { Program } from "@project-serum/anchor";
+import { getMetaplexToken } from "./token";
 import * as anchor from "@project-serum/anchor";
-import {chunks} from "./common";
-import {AccountInfo, ConfirmOptions, Connection} from "@solana/web3.js";
+import { chunks } from "./common";
+import { AccountInfo, ConfirmOptions, Connection } from "@solana/web3.js";
 import axios from "axios";
-import {programs} from "@metaplex/js";
-import {TOKEN_PROGRAM_ID} from "@solana/spl-token";
+import { programs } from "@metaplex/js";
+import { TOKEN_PROGRAM_ID, u64 } from "@solana/spl-token";
+import { getNumber } from "./format";
 
 export default class NftsData {
     program: Program;
@@ -15,7 +16,7 @@ export default class NftsData {
     hashTableLegendaries: string[];
     redemptionRate: number;
     redemptionRateLegendary: number;
-    constructor (
+    constructor(
         program: Program,
         hashTable: string[],
         hashTableLegendaries: string[] = [],
@@ -92,9 +93,9 @@ export default class NftsData {
                         ],
                     })
                     .then(async (res) => {
-                        if(res?.data?.result?.value?.length) {
+                        if (res?.data?.result?.value?.length) {
                             // Filter nulls first (user wallet may not be updated) and then map
-                            return res.data.result.value.filter((v:any) => v).map((v:any) => v.data.parsed.info.mint);
+                            return res.data.result.value.filter((v: any) => v).map((v: any) => v.data.parsed.info.mint);
                         } else {
                             return [];
                         }
@@ -107,17 +108,28 @@ export default class NftsData {
         const nftsData = await this.getNftsData(mints);
         // append stakedNfts data berfore returning
         return nftsData.map(nftData => {
+
             const stakeAccount = stakedNfts.find(stakedNft => nftData.mint === stakedNft.account.mint.toString());
+
+            let halvening1_start_time = 167000000;
+
+            let to_days = 60 * 60 * 24;
+
             let estimateRewards = 0;
-            if(stakeAccount && nftData.redemptionRate) {
-                const currDate = new Date().getTime() / 1000;
-                const daysElapsed =
-                    Math.abs(currDate - stakeAccount.account.startDate) /
-                    (60 * 60 * 24);
-                const amountRedeemed =
-                    stakeAccount.account.amountRedeemed.toNumber() / 1e6;
-                estimateRewards = nftData.redemptionRate * daysElapsed - amountRedeemed;
-            }
+
+            const currDate = new Date().getTime() / 1000;
+
+        if (stakeAccount.account.startDate > halvening1_start_time) {
+            let day_dif = (currDate - stakeAccount.account.startDate);
+            let days_elapsed = day_dif / to_days;
+            estimateRewards = (nftData.redemptionRate / 2) * days_elapsed;
+        } else {
+            let day_dif_after_halvening = (currDate - halvening1_start_time);
+            let day_dif_before_halvening = (halvening1_start_time - stakeAccount.account.startDate);
+            let days_elapsed_after_halvening = day_dif_after_halvening / to_days;
+            let days_elapsed_before_halvening = day_dif_before_halvening / to_days;
+            estimateRewards = (nftData.redemptionRate * days_elapsed_before_halvening) + ((nftData.redemptionRate / 2) * days_elapsed_after_halvening);
+        }
             return {
                 ...nftData,
                 stakeAccount,
@@ -131,7 +143,7 @@ export default class NftsData {
         const stakes = await this.program.account.stake.all();
         return stakes.filter((stake: any) => stake.account.withdrawn === false).length;
     }
-    private async getNftsData(mints:string[]) {
+    private async getNftsData(mints: string[]) {
         const metaplexToken = getMetaplexToken();
 
         const pdas = await Promise.all(mints.map(async mint => {
@@ -170,7 +182,7 @@ export default class NftsData {
             const uri = metadata.data.data.uri.replace("dweb.link", "infura-ipfs.io")
             const { data } = await axios.get(uri);
             let image = data?.image;
-            if(image.includes('ipfs.dweb.link')){
+            if (image.includes('ipfs.dweb.link')) {
                 // We need to transform https://xxx.ipfs.dweb.link to https://infura-ipfs.io/ipfs/xxx
                 // nextjs does not allow whitelisting subdomains so we need to fetch images from 1 root domain
                 const id = image.split('//').pop().split('.')[0];
